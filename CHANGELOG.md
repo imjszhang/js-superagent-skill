@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.1 — 2026-11-10
+
+- Allow the verified js-superagent 0.14.0-alpha.2 package layout for coordinator knowledge synchronization, retaining alpha.1 support and schema checks.
+- Preserve existing knowledge, prompts and service startup behavior when deploying the assessment recovery fix.
+
 ## 0.5.0 — 2026-11-10
 
 - Add project-local runtime `knowledge/`, with one Markdown document per coordinator-only knowledge entry and a default project overview template.

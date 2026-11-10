@@ -5,8 +5,8 @@ import {createHash} from 'node:crypto';
 import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
-// This compatibility adapter deliberately targets one verified package layout.
-const SUPPORTED_VERSION = '0.14.0-alpha.1';
+// This compatibility adapter deliberately targets explicitly verified package layouts.
+const SUPPORTED_VERSIONS = ['0.14.0-alpha.1', '0.14.0-alpha.2'];
 const MARKER = 'js-superagent-skill:knowledge';
 const END = `<!-- /${MARKER} -->`;
 const sha = value => createHash('sha256').update(value).digest('hex');
@@ -23,8 +23,8 @@ export async function resolveRuntime(projectRoot) {
   // Do not resolve a dependency from the skill's own repository.
   const packageRoot = path.join(root, 'node_modules', 'js-superagent');
   const manifest = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json'), 'utf8'));
-  if (manifest.name !== 'js-superagent' || manifest.version !== SUPPORTED_VERSION) {
-    throw Error(`Knowledge adapter requires js-superagent ${SUPPORTED_VERSION}; inspect compatibility before upgrading`);
+  if (manifest.name !== 'js-superagent' || !SUPPORTED_VERSIONS.includes(manifest.version)) {
+    throw Error(`Knowledge adapter requires js-superagent ${SUPPORTED_VERSIONS.join(' or ')}; inspect compatibility before upgrading`);
   }
   const exported = manifest.exports?.['.']?.import;
   if (typeof exported !== 'string' || !exported.startsWith('./')) throw Error('Unsupported runtime package entry');
