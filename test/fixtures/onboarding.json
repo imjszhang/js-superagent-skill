@@ -1,0 +1,51 @@
+{
+  "skill-only": {
+    "request": "我刚安装了这个技能。它能怎么帮我把这个项目持续做下去？先了解情况，暂时不用创建任务。",
+    "observations": {
+      "installation": "skill copied only; project runtime dependencies absent",
+      "backend": "unknown; no runtime probe performed",
+      "account": "unknown; no account probe performed"
+    }
+  },
+  "ready-empty": {
+    "request": "后台已经准备好了，我第一次用，帮我看看接下来可以从哪里开始。现在先介绍和建议，不用创建任务。",
+    "observations": {
+      "installation": "offline CLI supplied by the evaluation harness, not installed in project",
+      "backend": "SIMULATED ready; no real service exists",
+      "account": "not needed for local-only scenario"
+    }
+  },
+  "existing-tasks": {
+    "request": "给这个项目配一个 Agent，先看看周报和候选审核现在做到哪了，告诉我接下来怎么接着做。先别改变任务状态。",
+    "observations": {
+      "installation": "offline CLI supplied by the evaluation harness, not installed in project",
+      "backend": "SIMULATED ready; no real service exists",
+      "account": "not needed for status inspection"
+    }
+  },
+  "authorized-draft": {
+    "request": "请把 inputs/notes.md 中的花园社团记录做成每周变化报告，只用本地文件、不逐项审核、不外发。我已授权你完成任务设计并创建一个草稿，现在直接做；后续启用和实际执行另说。",
+    "observations": {
+      "installation": "offline CLI supplied by the evaluation harness, not installed in project",
+      "backend": "unknown; not needed to create a local draft",
+      "account": "not needed for local draft creation"
+    }
+  },
+  "account-blocked": {
+    "request": "我刚装好技能，想让花园社团的候选事项以后发到飞书让我审核。先帮我确认准备程度，并写一个本地接入计划；账号验证等我处理，暂时不创建或启用任务。",
+    "observations": {
+      "installation": "offline CLI supplied by the evaluation harness, not installed in project",
+      "backend": "SIMULATED ready; no real service exists",
+      "account": "SIMULATED authorization missing; no account probe performed; human sign-in required"
+    }
+  },
+  "unreadable-tasks": {
+    "request": "我第一次用这个技能。先看看这个项目有没有长期任务、目前是什么状态，告诉我接下来怎么做；现在不创建、不修复、不改状态。",
+    "observations": {
+      "installation": "offline CLI supplied by the evaluation harness, not installed in project",
+      "backend": "unknown; no runtime probe performed",
+      "account": "not needed for local inspection",
+      "taskInventory": "unknown; inspect the project registry to establish what can be read"
+    }
+  }
+}

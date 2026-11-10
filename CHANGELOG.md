@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — 2026-11-10
+
+- Add project-aware first-use guidance after installation and deployment, including a concrete suggested next message.
+- Distinguish installation-only, verified empty deployments, existing drafts/tasks, blocked setup and unknown readiness.
+- Recommend from project inputs and actual capabilities; continue work already authorized instead of returning to an onboarding menu.
+- Include the guidance in the installable skill and explicitly invoke it from the README installation recipe.
+- Add reproducible offline onboarding scenarios and independent behavioral validation; preserve existing tasks and runtime dependencies on upgrade.
+
 ## 0.3.0 — 2026-11-10
 
 - Center the skill on a Project Agent that maintains ongoing project tasks.
