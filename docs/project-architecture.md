@@ -26,7 +26,12 @@ README 的资料清单是通用示例，不披露任何使用者的项目、任�
 
 ## 组件架构图
 
-虚线表示部署维护或可选接入，实线表示执行和结果流。框内是项目的逻辑归属边界，实际数据位置见下文。
+图片展示主要职责与数据流；虚线表示配置维护。下方折叠的原始图保留完整执行分支。框内是项目的逻辑归属边界，实际数据位置见下文。
+
+![Project Agent 组件架构：操作入口位于项目后台之外，项目规则进入 longrun，由 superagent 执行并返回结果，经核验后保存成果；飞书连接 superagent。](assets/project-agent-architecture-v1.png)
+
+<details>
+<summary>查看完整可编辑架构图</summary>
 
 ```mermaid
 flowchart TB
@@ -52,6 +57,8 @@ flowchart TB
     F["你 · 飞书审核"]
     P <-->|superagent 飞书通道：卡片与答案| F
 ```
+
+</details>
 
 Skill 指导 Coding Agent 操作；后台的协调者与 Worker 属于 js-superagent。普通工单可直接进入 superagent，长期任务才需要 longrun。lark-cli 用于配置、授权与诊断；生产卡片和回调走 superagent 通道。
 

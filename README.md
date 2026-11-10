@@ -53,6 +53,11 @@ A Project Agent for ongoing work.
 
 完成接入并启用任务后，它按照这样的流程工作：
 
+![长期任务循环：按计划开始，整理结果，飞书人工决定，继续执行与核验，保存成果与历史，到期且满足限制后继续。](docs/assets/project-agent-workflow-v1.png)
+
+<details>
+<summary>查看可编辑流程图</summary>
+
 ```mermaid
 flowchart LR
     A["按计划检查资料"] --> B["整理建议与依据"]
@@ -61,6 +66,8 @@ flowchart LR
     D --> E["保存成果与决定"]
     E -->|到期后继续| A
 ```
+
+</details>
 
 选择“稍后”的内容会保留，等你决定重审时再送来。无需逐项审核的报告任务，则可以完成后直接核对并保存。
 
@@ -135,6 +142,8 @@ Agent 会检查并安装兼容的依赖，明确任务输入、成果、频率�
 ## 背后如何运作
 
 Project Agent 是这些组件在你的项目中的组合。**项目保存业务规则与历史，运行组件推进任务，Skill 帮助你搭建和管理它们。**
+
+![Project Agent 架构：Coding Agent 与 Skill 负责配置维护；项目内 longrun 管理长期任务与核验，superagent 执行工单并连接飞书审核，成果核验后保存。](docs/assets/project-agent-architecture-v1.png)
 
 | 组件 | 在项目中做什么 | 项目 |
 |---|---|---|
