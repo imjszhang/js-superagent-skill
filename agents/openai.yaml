@@ -1,0 +1,4 @@
+interface:
+  display_name: "JS Superagent 项目运行助手"
+  short_description: "安装持续任务依赖，接入项目运行、飞书审核与自动结算，并维护故障恢复和升级。"
+  default_prompt: "使用 $js-superagent-skill 检查这个项目，安装缺失依赖并接入持续任务运行。"

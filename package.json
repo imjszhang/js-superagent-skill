@@ -1,0 +1,10 @@
+{
+  "name": "js-superagent-skill",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Project operator skill for installing and running the js-superagent ecosystem.",
+  "license": "MIT",
+  "engines": {"node": ">=22.13.0"},
+  "scripts": {"test": "node --test test/*.test.mjs", "check": "node --check scripts/inspect.mjs && npm test"}
+}
