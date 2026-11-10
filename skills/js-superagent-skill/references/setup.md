@@ -4,14 +4,14 @@
 
 确认目标项目、包管理器和已有锁文件。检查 Node、现有依赖、项目运行入口和服务；不要仅因存在旁边源码目录就把它当作已安装包。`inspect.mjs` 只报告安装事实，不能证明账号或后台健康。
 
-已验证组合（2026-11-10）：Node >=22.13；js-superagent 0.14.0-alpha.1；js-longrun 0.1.0-alpha.2；js-agent-runtime 0.2.2；lark-cli 来自官方 `@larksuite/cli`，当时为 1.0.99。superagent alpha.0 存在单工单禁用 managed jobs 与 DSH 配置不一致的问题，不用于新的完整部署。
+已验证组合（2026-11-11）：Node >=22.13；js-superagent 0.14.0-alpha.3；js-longrun 0.1.0-alpha.2；js-agent-runtime 0.2.2；lark-cli 来自官方 `@larksuite/cli`，当时为 1.0.99。superagent alpha.0 存在单工单禁用 managed jobs 与 DSH 配置不一致的问题，不用于新的完整部署。
 
 安装前从 npm registry 查询候选包的 version、engines、peerDependencies、repository，选择兼容的准确版本，核对来源：`imjszhang/js-superagent`、`imjszhang/js-longrun`、`imjszhang/js-agent-runtime`；飞书 CLI 为 `larksuite/cli`。不要仅根据 latest 推断稳定性，首发 alpha 也可能被 npm 标为 latest。
 
 对 npm 项目，已验证组合的安装示例：
 
 ```sh
-npm install --save-exact js-superagent@0.14.0-alpha.1 js-longrun@0.1.0-alpha.2 js-agent-runtime@0.2.2
+npm install --save-exact js-superagent@0.14.0-alpha.3 js-longrun@0.1.0-alpha.2 js-agent-runtime@0.2.2
 ```
 
 实际由 Agent 执行安装并检查退出状态、package.json 和锁文件。按项目现有包管理器使用对应准确版本命令，不额外生成另一种锁文件。已安装并兼容的组件无需反复安装。没有 package.json 时，确认此目录确为用户指定项目后创建最小清单，不覆盖已有工程。

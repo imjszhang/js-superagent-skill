@@ -6,7 +6,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
 // This compatibility adapter deliberately targets explicitly verified package layouts.
-const SUPPORTED_VERSIONS = ['0.14.0-alpha.1', '0.14.0-alpha.2'];
+const SUPPORTED_VERSIONS = ['0.14.0-alpha.1', '0.14.0-alpha.2', '0.14.0-alpha.3'];
 const MARKER = 'js-superagent-skill:knowledge';
 const END = `<!-- /${MARKER} -->`;
 const sha = value => createHash('sha256').update(value).digest('hex');

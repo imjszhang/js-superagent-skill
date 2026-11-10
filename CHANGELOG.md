@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.2 — 2026-11-11
+
+- Support the verified js-superagent 0.14.0-alpha.3 layout for conversation-based candidate recovery while preserving earlier compatible versions.
+- Document recovery of original requests through the operator conversation without creating replacements.
+
 ## 0.5.1 — 2026-11-10
 
 - Allow the verified js-superagent 0.14.0-alpha.2 package layout for coordinator knowledge synchronization, retaining alpha.1 support and schema checks.
