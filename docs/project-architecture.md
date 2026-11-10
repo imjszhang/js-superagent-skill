@@ -4,6 +4,57 @@
 
 本说明面向希望将持续 Agent 工作接入现有项目的维护者。基于 2026-11-10 对上游原型、关联项目文档及关键实现的核对；描述当前组合方式，不把研究设想当作已交付能力。
 
+## Project Agent 的定位
+
+本项目用 Project Agent 描述一种以项目为中心的工作方式：相关输入、规则、长期任务和成果各有归属，执行跨越多次会话，人工决定与历史持续保留。这是产品服务范围的定义，不是一个新增模型或独立的第五个运行包。
+
+Personal Agent 常以个人为服务入口，例如 [OpenClaw 的项目介绍](https://github.com/openclaw/openclaw)围绕用户自己的设备和沟通渠道展开。本项目把介绍重心放在项目及其长期任务；这是一种使用视角，不用来断言其他助手无法处理项目工作。
+
+长期维护由几项实际机制支撑：
+
+| 用户价值 | 实现依据 |
+|---|---|
+| 项目有自己的运行身份与历史 | [项目身份](https://github.com/imjszhang/js-superagent/blob/main/src/project-identity.mjs)按真实项目路径绑定状态 |
+| 同一任务可以按条件继续 | [任务定义](https://github.com/imjszhang/js-longrun/blob/main/src/core/definitions.mjs)保存运行间隔、限制与控制状态 |
+| 后续工作可以沿用已有积累 | [任务类型装配](https://github.com/imjszhang/js-longrun/blob/main/src/types/index.mjs)读取已有任务记忆，运行时冻结每轮输入 |
+| 一个项目容纳多项任务 | [项目调度](https://github.com/imjszhang/js-longrun/blob/main/src/project.mjs)逐项检查与收集，任务定义与成果按实例分开 |
+| 回答之后继续原任务 | superagent 保存人工答案并续接工单，longrun 对结果进行核验和采纳 |
+
+“长期”指按配置持续维护任务，并不意味着无限运行、无限记忆或自动发现全部项目目标。更改任务配置不会重写已经冻结的历史回合；暂停后续回合也不自动取消正在执行的工单。
+
+README 的资料清单是通用示例，不披露任何使用者的项目、任务数据或验收记录。
+
+## 组件架构图
+
+虚线表示部署维护或可选接入，实线表示执行和结果流。框内是项目的逻辑归属边界，实际数据位置见下文。
+
+```mermaid
+flowchart TB
+    A["你 + Coding Agent + Skill<br/>安装 · 设计 · 部署 · 维护"]
+
+    subgraph P["你的项目 · 逻辑边界"]
+        direction LR
+        B["业务规则与任务定义"]
+        L["js-longrun<br/>回合 · 额度 · 核验结算"]
+        S["js-superagent<br/>持久工单 · 协调 · Worker"]
+        E["原生执行器"]
+        R["js-agent-runtime<br/>可选执行适配"]
+        O["项目成果与任务历史"]
+        B --> L
+        L -->|提交工单| S
+        S --> E
+        S -.->|宿主子任务| R
+        S -->|状态与结果| L
+        L -->|核验后采纳| O
+    end
+
+    A -.->|配置与维护| P
+    F["你 · 飞书审核"]
+    P <-->|superagent 飞书通道：卡片与答案| F
+```
+
+Skill 指导 Coding Agent 操作；后台的协调者与 Worker 属于 js-superagent。普通工单可直接进入 superagent，长期任务才需要 longrun。lark-cli 用于配置、授权与诊断；生产卡片和回调走 superagent 通道。
+
 ## 为什么以项目为边界
 
 一个长期目标往往横跨多次会话、工单与人工决定。项目需要保存业务标准、输入、正式成果和历史；执行器负责当前工作，不能仅凭一次对话的结束判断项目目标已经完成。
@@ -81,6 +132,38 @@ js-agent-runtime 提供一次执行尝试的 `plan`、`probe`、`run` 等接口�
 lark-cli 用于飞书的配置、授权、查询和诊断；生产发卡与回调走 superagent 人工通道。当前审核入口以配置操作者的私信为边界，不应描述成任意群聊多人审批。Worker 完成通知也不等于业务已结算通知。
 
 状态变化提示可能重复、合并或遗漏，因此事件驱动负责及时响应，持久状态负责事实，定时检查负责兜底。多文件写入有恢复和冲突处理，但不是跨系统 exactly-once 事务。[状态观察机制](https://github.com/imjszhang/js-superagent/blob/main/docs/state-watch.md) · [longrun watcher 实现](https://github.com/imjszhang/js-longrun/blob/main/src/project.mjs) · [审核快照实现](https://github.com/imjszhang/js-superagent/blob/main/src/runtime/attention-snapshots.mjs)
+
+### 审核结算时序图
+
+以下描述已部署后台、watcher 和定时器，且已授权运行的审核任务。
+
+```mermaid
+sequenceDiagram
+    participant T as 项目定时器
+    participant L as js-longrun
+    participant S as js-superagent / Worker
+    participant H as 你 · 飞书
+    participant W as longrun watcher
+    participant P as 项目成果
+
+    T->>L: tick（获准开启到期回合）
+    L->>L: 检查到期、额度、暂停与活跃回合
+    L->>S: 冻结本轮输入，提交工单
+    S->>S: Worker 产出候选与提问
+    S->>S: 宿主捕获并保存不可变审核快照
+    S->>H: 快照保存后发送审核卡片
+    H->>S: 提交决定与理由
+    S->>S: 保存结构化答案，原 Worker 继续
+    S->>S: 写入结果，工单完成
+    S-->>W: 持久状态变化提示
+    W->>S: 读取当前工单状态
+    W->>L: 触发 collect
+    L->>L: 核验快照、答案、结果与写入基线
+    L->>P: 通过后采纳，记录结算与下一轮状态
+    T-->>L: 定时补收、检查超时与下一轮资格
+```
+
+卡片提交、工单完成和业务结算是三个不同事实。watcher 在状态变化后尽快收集，无需等到下一次定时检查；核验通过后才采纳结果。业务结算不等于对外发布。
 
 ## 从上游保留哪些思想
 
