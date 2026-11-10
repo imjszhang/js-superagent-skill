@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 — 2026-11-10
+
+- Fix inspector CLI entry detection when installation paths traverse filesystem aliases (for example macOS temporary directories).
+- Validate the copied skill independently of repository files. Use this version instead of 0.2.0.
+
 ## 0.2.0 — 2026-11-10
 
 - Move the installable payload to skills/js-superagent-skill/; repository tests, release checks and history remain at the root.

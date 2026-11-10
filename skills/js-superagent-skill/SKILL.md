@@ -2,7 +2,7 @@
 name: js-superagent-skill
 description: 为项目安装并接入 js-superagent、js-longrun、js-agent-runtime 和 lark-cli，设计持续任务，配置执行与飞书审核，检查状态、恢复故障及升级部署。用于任务运行系统的搭建与维护；具体内容生产遵循宿主业务规则。
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
 ---
 
 # 项目持续任务操作

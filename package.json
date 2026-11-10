@@ -1,6 +1,6 @@
 {
   "name": "js-superagent-skill",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "description": "Project operator skill for installing and running the js-superagent ecosystem.",

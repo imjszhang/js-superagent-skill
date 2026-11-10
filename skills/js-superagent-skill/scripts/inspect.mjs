@@ -33,7 +33,7 @@ function version(command){
   const r=spawnSync(command,['--version'],{encoding:'utf8',timeout:5000,maxBuffer:65536,shell:false});
   return {available:!r.error&&r.status===0,version:!r.error&&r.status===0?r.stdout.trim().split('\n')[0]:null};
 }
-if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+if(process.argv[1]&&fs.realpathSync(process.argv[1])===fs.realpathSync(fileURLToPath(import.meta.url))){
   try{
     const args=process.argv.slice(2);
     if(args.length===1&&args[0]==='--help'){console.log('node inspect.mjs --project /absolute/project (read only)');}
