@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "sample-review",
+  "type": "review-items@1",
+  "revision": 1,
+  "brief": "task.md",
+  "completion": {
+    "kind": "until-disabled"
+  },
+  "trigger": {
+    "kind": "fixed-interval",
+    "intervalHours": 168,
+    "anchor": "2026-01-05T09:00:00Z",
+    "timezone": "UTC"
+  },
+  "limits": {
+    "weeklyRuns": 2,
+    "weeklySubtasks": 0,
+    "maxSubtasksPerRun": 0,
+    "maxExecutionMinutes": 60,
+    "queueTimeoutHours": 24
+  },
+  "review": {
+    "mode": "items",
+    "timeoutHours": 168,
+    "onTimeout": "defer",
+    "allowReReview": true
+  },
+  "executionProfile": "local-worker@1",
+  "outputBinding": "instance",
+  "notifications": {
+    "review": "operator",
+    "settled": "none",
+    "failure": "none"
+  },
+  "inputs": [
+    "inputs/notes.md"
+  ],
+  "parameters": {
+    "maxItems": 5
+  }
+}

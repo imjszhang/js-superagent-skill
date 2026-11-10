@@ -96,7 +96,7 @@ flowchart LR
 在目标项目中，把下面这段话交给 Codex 或 Claude Code：
 
 ```text
-从 https://github.com/imjszhang/js-superagent-skill 安装 v0.2.1 的
+从 https://github.com/imjszhang/js-superagent-skill 安装 v0.3.0 的
 skills/js-superagent-skill/ 到当前项目的技能目录。
 检查已有同名技能，保留本地修改，并在技能目录外记录来源版本与提交。
 ```
@@ -156,7 +156,7 @@ js-agent-runtime 按需使用。日常卡片和回答由 js-superagent 的飞书
 - **持续工作有规则。** 任务按配置和授权运行，不会自动替项目决定所有新目标。暂停后续运行与取消正在执行的工作是不同操作。
 - **人的决定会被保留。** “稍后”项可显式重审；系统不会替你作出审核决定，也不会因此自动对外发布。
 - **完成还要核对。** 审核提交后，任务继续执行；结果经过检查才写入项目。状态变化触发及时收集，定时检查作兜底。
-- **仍需按项目验收。** 技能版本为 `0.2.1`，相关运行包仍包含 alpha 版本。已有测试不代表你的账号、工具和业务流程已经接通。
+- **仍需按项目验收。** 技能版本为 `0.3.0`，相关运行包仍包含 alpha 版本。已有测试不代表你的账号、工具和业务流程已经接通。
 
 ## 文档与参与
 
@@ -169,7 +169,7 @@ js-agent-runtime 按需使用。日常卡片和回答由 js-superagent 的飞书
 | 了解实现 | [项目级架构与设计依据](docs/project-architecture.md) |
 | 开发与升级技能 | [维护指南](docs/maintaining.md) · [变更记录](CHANGELOG.md) |
 
-欢迎在 [Issues](https://github.com/imjszhang/js-superagent-skill/issues) 分享你想长期交给项目 Agent 的工作。反馈问题时，请只提交脱敏后的复现步骤。开发检查：`npm run check`。
+欢迎在 [Issues](https://github.com/imjszhang/js-superagent-skill/issues) 分享你想长期交给项目 Agent 的工作。反馈问题时，请只提交脱敏后的复现步骤。开发检查：`npm ci --ignore-scripts && npm run check`。任务说明模板、可验证定义示例和维护验收记录见[维护指南](docs/maintaining.md)。
 
 ## 致谢与许可
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 — 2026-11-10
+
+- Center the skill on a Project Agent that maintains ongoing project tasks.
+- Add a task brief, version-tested example definitions, and design-to-operation handoff.
+- Define cadence changes, in-flight preservation, pause/resume/disable, re-review and retirement workflows.
+- Add isolated lifecycle tests and independent scenario reviews; keep private host data out of public artifacts.
+- Upgrade only skill files; no runtime package upgrade or production-state migration.
+
 ## 0.2.1 — 2026-11-10
 
 - Fix inspector CLI entry detection when installation paths traverse filesystem aliases (for example macOS temporary directories).

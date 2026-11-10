@@ -1,9 +1,9 @@
 {
   "name": "js-superagent-skill",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "description": "Project operator skill for installing and running the js-superagent ecosystem.",
+  "description": "Project Agent skill for designing, deploying and maintaining ongoing project tasks.",
   "license": "MIT",
   "engines": {
     "node": ">=22.13.0"
@@ -12,5 +12,9 @@
     "test": "node --test test/*.test.mjs",
     "check": "npm run check:version && node --check skills/js-superagent-skill/scripts/inspect.mjs && npm test",
     "check:version": "node scripts/check-version.mjs"
+  },
+  "devDependencies": {
+    "js-longrun": "0.1.0-alpha.2",
+    "js-superagent": "0.14.0-alpha.1"
   }
 }
