@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
-import {inspectProject} from '../scripts/inspect.mjs';
+import {inspectProject} from '../skills/js-superagent-skill/scripts/inspect.mjs';
 function temporary(t){const p=fs.mkdtempSync(path.join(os.tmpdir(),'skill-inspect-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));return p;}
 test('inspection of an empty project creates no config, package or state',t=>{
   const root=temporary(t);const result=inspectProject(root);

@@ -11,6 +11,6 @@ export function validateVersion({version,packageVersion,skillVersion,changelog,t
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8');
   const version=validateVersion({version:read('VERSION').trim(),packageVersion:JSON.parse(read('package.json')).version,
-    skillVersion:read('SKILL.md').split('---')[1].match(/^  version: "([^"]+)"$/m)?.[1],changelog:read('CHANGELOG.md'),tag:process.env.RELEASE_TAG});
+    skillVersion:read('skills/js-superagent-skill/SKILL.md').split('---')[1].match(/^  version: "([^"]+)"$/m)?.[1],changelog:read('CHANGELOG.md'),tag:process.env.RELEASE_TAG});
   console.log(`Skill version ${version} verified`);
 }
