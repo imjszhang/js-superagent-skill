@@ -1,114 +1,213 @@
+<div align="center">
+
 # js-superagent-skill
 
-让 Coding Agent 帮你在项目中搭建和维护持续任务系统：安装依赖、配置执行能力、设计长期任务、接入飞书审核，并检查任务是否真正完成与结算。
+**把持续工作交给项目，把关键决定留给你。**
 
-例如，你可以让项目每天发现一批候选，把需要判断的内容发到飞书卡片，提交决定后继续处理并记录结果。也可以设计无需逐项审核的定期报告。具体业务规则由你的项目定义，技能负责把需求接到可运行、可检查的任务流程上。
+A project-level operating skill for persistent agents.
 
-这是供 Codex、Claude Code 等 Agent 使用的操作技能。它把 [js-superagent](https://github.com/imjszhang/js-superagent)、[js-longrun](https://github.com/imjszhang/js-longrun)、[js-agent-runtime](https://github.com/imjszhang/js-agent-runtime) 与 [lark-cli](https://github.com/larksuite/cli) 的安装和协作方法组织成一套工作指引。持续执行由部署后的服务承担；本技能不维护另一套后台服务或任务状态库。
+[![Validate skill](https://github.com/imjszhang/js-superagent-skill/actions/workflows/check.yml/badge.svg)](https://github.com/imjszhang/js-superagent-skill/actions/workflows/check.yml)
+[![Version](https://img.shields.io/github/v/tag/imjszhang/js-superagent-skill?label=skill)](https://github.com/imjszhang/js-superagent-skill/tags)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## 可以用它做什么
+[快速开始](#快速开始) · [项目级架构](#项目级架构) · [任务如何推进](#任务如何推进) · [关联项目](#关联项目) · [设计说明](docs/project-architecture.md)
 
-- **搭建环境**：检查已有配置，安装缺失且兼容的依赖，接入执行器与飞书账号。
-- **设计任务**：明确输入、成果、执行频率、额度、人工审核和完成条件，选择普通工单或长期任务。
-- **接入人工审核**：配置飞书卡片，核对答案保存、任务继续执行与业务结算的完整过程。
-- **维护运行**：查看进度，定位卡住的工单、回调或结算，恢复运行并保留历史状态。
-- **升级部署**：核对组件兼容性、安装版本和现有配置，验证升级后的运行结果。
+</div>
 
-按任务需要选择组件：普通工单可以只用 js-superagent；持续任务再接入 js-longrun；需要额外执行适配或飞书交互时，再配置相应能力。
+让 Codex、Claude Code 等 Coding Agent 帮你**安装依赖、设计任务、配置持续运行、接入飞书审核，并验证结果是否真正落到项目中**。
 
-## 开始使用
+从 [dsh-superagent-prototype](https://github.com/deepseek-ai/dsh-superagent-prototype) 的持久工单、协调与执行分工、人工注意力管理思想出发，把工作组织到**你的项目**：项目拥有业务规则、任务实例和成果；通用组件负责执行与推进；Skill 帮你完成接入和维护。
 
-先将本仓库的 `skills/js-superagent-skill/` 目录复制到目标项目的技能发现目录：
+> **你可以这样开始：**“为这个项目建立每周资料报告任务，记录来源，标出值得跟进的内容，需要我判断时通过飞书审核。”
+>
+> Agent 会先落实任务定义和运行条件，再按授权部署。联网采集等业务能力由项目接入，内置任务从你提供的本地资料开始。
 
-| 使用环境 | 安装位置 |
+## 为什么需要它
+
+一次对话可以完成一次工作。持续项目还要回答：**下一轮何时开始？上一轮做到哪里？谁来审核？结果是否已经采纳？**
+
+本技能帮助你把这些问题落实成可检查的项目流程：
+
+| 你想完成的事 | 技能帮助建立的能力 |
 |---|---|
-| Codex | `<项目>/.agents/skills/js-superagent-skill/` |
-| Claude Code | `<项目>/.claude/skills/js-superagent-skill/` |
-| 已有集中技能管理的项目 | 安装到项目维护源，再用该项目的生成器生成 Agent 入口 |
+| 让工作持续推进 | 配置后台、到期检查、额度与暂停规则，按条件开启下一轮 |
+| 把决定留给自己 | 用飞书卡片收集结构化审核，再继续原工单 |
+| 接着上次做 | 保留工单、冻结输入、历史决定与下一轮记忆 |
+| 知道结果能否使用 | 区分卡片送达、答案保存、工单完成和业务结算 |
+| 给新项目复用 | 通用包负责运行，项目保留自己的规则、适配器和成果 |
 
-保留整个目录及相对路径，只为所用客户端配置一个同名入口。可安装内容的入口是 [SKILL.md](skills/js-superagent-skill/SKILL.md)；仓库根目录的开发与版本管理文件无需复制。
+**先接入一个任务，再逐步扩展。** 普通工单可直接用 js-superagent；长期任务加上 js-longrun；额外执行适配和飞书能力按需接入。
 
-随后在目标项目中告诉 Agent：
+## 快速开始
 
-> 使用 js-superagent-skill，帮我安装并接入持续任务系统。先检查已有环境，复用兼容配置，再补齐缺失依赖。
+### 1. 安装技能
 
-或从一个具体需求开始：
+让你的 Coding Agent 执行：
 
-> 使用 js-superagent-skill，帮我设计一个每周收集资料并生成报告的长期任务。先把输入、输出、审核方式和完成条件落实到项目文件。
+> 从 https://github.com/imjszhang/js-superagent-skill 安装 v0.2.1 的 `skills/js-superagent-skill/`。只复制可安装目录；检查已有同名技能，保留本地修改，并在技能目录外记录来源版本和提交。
 
-已有部署时：
+| 客户端 | 项目内安装位置 |
+|---|---|
+| Codex | `.agents/skills/js-superagent-skill/` |
+| Claude Code | `.claude/skills/js-superagent-skill/` |
+| 已有集中技能管理的项目 | 安装到项目维护源，再用该项目的生成器生成入口 |
 
-> 使用 js-superagent-skill，检查当前任务运行情况，确认飞书卡片提交后能否自动结算，保留已有工单与审核状态。
+也可手动从指定标签复制整个目录，保留相对路径。仓库根目录的测试、版本记录与文档无需安装。
 
-Agent 会按需要实际安装依赖、配置并验证；账号登录或验证需要你本人完成时，会交接对应步骤。仅复制技能文件不会自动安装运行包或启动任务，部署后的启动、发送和发布按你的任务授权执行。
+### 2. 告诉它你的项目目标
 
-## 关联项目与分工
-
-| 项目 | 作用 | 与本技能的关系 |
-|---|---|---|
-| [js-superagent](https://github.com/imjszhang/js-superagent) | 持久工单、协调者与 Worker、会话、子任务及人工输入 | 任务执行与协作基础，本技能帮助安装、配置和维护 |
-| [js-longrun](https://github.com/imjszhang/js-longrun) | 长期任务定义、回合、额度、审核核验与业务结算 | 在 superagent 之上组织持续任务；业务规则仍由宿主项目提供 |
-| [js-agent-runtime](https://github.com/imjszhang/js-agent-runtime) | 规划、探测并调用具体 Agent 的执行接口 | 宿主需要执行适配或受管子任务时使用；不是每个 Worker 的必经层 |
-| [lark-cli](https://github.com/larksuite/cli) | 飞书配置、授权、查询与诊断 | 帮助操作者接入和排查飞书；日常发卡与回调使用 superagent 通道 |
-| [dsh-superagent-prototype](https://github.com/deepseek-ai/dsh-superagent-prototype) | DeepSeek 发布的 super-agent 研究原型 | js-superagent 的上游参考，提供工单、主动协作和减少人工注意力消耗等设计背景 |
-
-这些组件按项目需要组合，不是固定的顺序流水线。你与 Coding Agent 通过本技能完成部署和维护；部署后由 superagent 执行工单，longrun 管理长期任务的推进与结算，飞书承接需要人的判断。
-
-本项目独立维护，不是 DeepSeek 或飞书的官方产品。组件仍在演进，当前验证基线见[安装与配置](skills/js-superagent-skill/references/setup.md)；实际接入以目标项目和所选版本的能力为准。
-
-## 文档
-
-- [技能入口](skills/js-superagent-skill/SKILL.md)：按当前意图选择操作流程。
-- [安装与配置](skills/js-superagent-skill/references/setup.md)：依赖、执行器、账号与后台部署。
-- [任务设计](skills/js-superagent-skill/references/tasks.md)：从需求到工单、长期任务与业务适配。
-- [运行维护](skills/js-superagent-skill/references/operations.md)：检查、恢复、升级与验收。
-- [飞书接入](skills/js-superagent-skill/references/feishu.md)：卡片、授权、回调与排障。
-- [变更记录](CHANGELOG.md)：版本变化与迁移说明。
-
-## 开发与验证
-
-在本仓库运行：
-
-```sh
-npm run check
+```text
+使用 js-superagent-skill，为当前项目接入持续任务系统。
+先检查现有环境，安装缺失且兼容的依赖。
+帮我设计一个每周整理本地资料的任务：输出带来源的变化报告，
+把需要我决定的事项单独列出，再配置运行与审核方式。
 ```
 
-检查版本一致性、脚本语法和测试，包括技能目录独立复制后的可用性。
+技能会指导 Agent 检查环境、安装所需包、明确任务输入与成果、配置执行器和渠道，最后进行分层验收。需要本人登录或验证时，你在官方页面完成；其余已授权操作由 Agent 继续。
 
-只读检查目标项目的依赖安装情况：
+### 3. 持续使用
+
+```text
+检查本项目所有长期任务：哪些在执行、哪些等我审核、哪些结算失败？
+确认飞书提交后的自动收集正常，保留现有工单和审核状态。
+```
+
+**运行条件：**当前组合基线需要 Node.js ≥ 22.13、可用的执行器及账号；飞书需要相应应用与权限。安装技能本身不启动服务。后台服务、watcher 和定时器部署并获准运行后，工作才能在当前对话结束后继续。[安装说明 →](skills/js-superagent-skill/references/setup.md)
+
+## 项目级架构
+
+**一个项目，自己的规则、任务和历史。** Skill 在部署与维护时帮助你操作，持续运行由组件和宿主调度承担。
+
+```mermaid
+flowchart TB
+    A["你 + Coding Agent + Skill<br/>安装 · 设计 · 部署 · 维护"]
+
+    subgraph P["你的项目 · 逻辑边界"]
+        direction LR
+        B["业务规则与任务定义"]
+        L["js-longrun<br/>回合 · 额度 · 核验结算"]
+        S["js-superagent<br/>持久工单 · 协调 · Worker"]
+        E["原生执行器"]
+        R["js-agent-runtime<br/>可选执行适配"]
+        O["项目成果与任务历史"]
+        B --> L
+        L -->|提交工单| S
+        S --> E
+        S -.->|宿主子任务| R
+        S -->|状态与结果| L
+        L -->|核验后采纳| O
+    end
+
+    A -.->|配置与维护| P
+    F["你 · 飞书审核"]
+    P <-->|superagent 飞书通道：卡片与答案| F
+```
+
+实线表示任务与审核流，虚线表示配置或可选接入。图中的“项目”是归属边界：superagent 状态按项目隔离，默认存放在用户状态目录；longrun 任务与业务成果留在宿主项目。普通工单可以直接进入 superagent，不必经过 longrun。
+
+**分工的核心：**Skill 指导操作者，superagent 持有工单，longrun 推进长期任务，项目决定什么结果值得采纳。js-agent-runtime 是可选执行接口；lark-cli 用于飞书接入和诊断，生产卡片与回调由 superagent 处理。
+
+[深入了解状态归属、部署组成与设计依据 →](docs/project-architecture.md)
+
+## 任务如何推进
+
+以“收集候选 → 飞书审核 → 采纳结果”为例。业务采集由宿主提供；下图描述已启用任务、后台和 watcher 后的流程。
+
+```mermaid
+sequenceDiagram
+    participant T as 项目定时器
+    participant L as js-longrun
+    participant S as js-superagent / Worker
+    participant H as 你 · 飞书
+    participant W as longrun watcher
+    participant P as 项目成果
+
+    T->>L: tick（获准开启到期回合）
+    L->>L: 检查到期、额度、暂停与活跃回合
+    L->>S: 冻结本轮输入，提交工单
+    S->>S: Worker 产出候选与提问
+    S->>S: 宿主捕获并保存不可变审核快照
+    S->>H: 快照保存后发送审核卡片
+    H->>S: 提交决定与理由
+    S->>S: 保存结构化答案，原 Worker 继续
+    S->>S: 写入结果，工单完成
+    S-->>W: 持久状态变化提示
+    W->>S: 读取当前工单状态
+    W->>L: 触发 collect
+    L->>L: 核验快照、答案、结果与写入基线
+    L->>P: 通过后采纳，记录结算与下一轮状态
+    T-->>L: 定时补收、检查超时与下一轮资格
+```
+
+**卡片提交 ≠ 工单完成 ≠ 业务结算。** watcher 会在相关状态变化后尽快触发收集，无需等到下一次定时检查；只有工单完成且核验通过，结果才被采纳。watcher 只收集，开启新回合由获准的定时检查负责。服务中断或核验失败时保留状态，由兜底检查或操作者继续处理。
+
+这里的“结算”是把经过验证的结果写入项目，并更新回合、额度与记忆。它不代表自动对外发布。[运行维护 →](skills/js-superagent-skill/references/operations.md)
+
+## 可以设计哪些任务
+
+| 场景 | 起点 | 项目需要提供 |
+|---|---|---|
+| 资料变化报告 | `change-report@1` | 本地资料、报告目标与证据要求；无需逐项审核 |
+| 建议或候选审核 | `review-items@1` | 本地输入、候选标准；支持采用、拒绝、稍后及重新审核 |
+| 联网选题、研究或内容流水线 | 宿主业务适配器 | 采集/制作能力、业务校验和成果写入规则 |
+| 一次修复或整理 | 普通 superagent 工单 | 任务范围、执行能力与验收要求 |
+
+这些是复用入口，不是四个“一键业务应用”。**先定义成果，再选择执行方式。** 新业务可以通过宿主适配器扩展；内置长期任务当前只处理提供的本地输入。[任务设计 →](skills/js-superagent-skill/references/tasks.md)
+
+## 关联项目
+
+| 项目 | 负责什么 | 在这里的角色 |
+|---|---|---|
+| **[js-superagent](https://github.com/imjszhang/js-superagent)** | 项目级持久工单、协调执行、人工输入、可选 GitHub / 飞书渠道 | 执行与协作基础 |
+| **[js-longrun](https://github.com/imjszhang/js-longrun)** | 长期任务、回合、额度、冻结输入、核验与结算 | 持续任务层 |
+| **[js-agent-runtime](https://github.com/imjszhang/js-agent-runtime)** | 规划、探测并调用具体 Agent | 可选的宿主执行适配 |
+| **[lark-cli](https://github.com/larksuite/cli)** | 飞书配置、授权、查询与诊断 | 飞书接入与维护工具 |
+| **[dsh-superagent-prototype](https://github.com/deepseek-ai/dsh-superagent-prototype)** | 单 GitHub 仓库的 super-agent 研究原型 | 设计来源；js-superagent 的领域核心基于其固定提交提取并持续适配 |
+
+### 从原型到项目级组合
+
+我们借鉴上游的三项原则：**减少人工注意力消耗、让工单独立于执行会话、把人工判断变成明确的任务输入**。在此基础上，通过独立组件和宿主业务适配，组织项目中的持续工作。
+
+| 上游原型的重心 | 本项目的落点 |
+|---|---|
+| 围绕一个 GitHub 仓库协作 | 围绕宿主项目的业务目标、资料、规则与成果协作 |
+| DSH 主会话协调，执行会话工作 | Skill 指导部署；运行时协调者与 Worker 按项目配置执行 |
+| 事件、授权、工单与反馈 | 在工单之上增加长期任务的回合、额度、审核核验与结算 |
+| 操作者安装和维护部署 | 把接入、设计、检查、恢复流程交给使用本技能的 Coding Agent |
+
+这描述的是组合方式与职责变化，不表示复刻了上游全部实现或研究设想。来源与逐项设计依据见[架构说明](docs/project-architecture.md#设计来源与证据)。
+
+## 当前状态与边界
+
+技能当前版本 **0.2.1**，MIT 开源；关联运行包仍包含 alpha 版本。已验证组合记录在[安装说明](skills/js-superagent-skill/references/setup.md)，安装时还会检查目标项目兼容性。
+
+- **已有能力**：操作指引、只读依赖检查脚本、独立安装校验，以及关联包提供的工单、回合和审核链路。
+- **需要部署**：执行器与登录、飞书应用、后台服务、一个项目 watcher 和兜底定时器；自定义业务需要宿主适配器。
+- **验收范围**：本仓库 CI 检查技能文件与工具；每个目标项目仍需验证真实执行、卡片提交和业务结算。工作区隔离不等于操作系统沙箱，结算恢复不承诺跨系统 exactly-once。
+
+## 文档与参与
+
+| 想了解 | 从这里开始 |
+|---|---|
+| Agent 如何使用技能 | [SKILL.md](skills/js-superagent-skill/SKILL.md) |
+| 安装、执行器与账号 | [安装与配置](skills/js-superagent-skill/references/setup.md) |
+| 设计新任务 | [任务设计](skills/js-superagent-skill/references/tasks.md) |
+| 检查与恢复运行 | [运行维护](skills/js-superagent-skill/references/operations.md) · [飞书接入](skills/js-superagent-skill/references/feishu.md) |
+| 理解架构与上游关系 | [项目级架构](docs/project-architecture.md) |
+| 修改、升级与发布技能 | [维护与版本管理](docs/maintaining.md) · [CHANGELOG](CHANGELOG.md) |
+
+欢迎通过 [Issues](https://github.com/imjszhang/js-superagent-skill/issues) 分享任务场景或可复现问题，也欢迎提交改进操作流程与测试的 PR。请附组件版本、预期行为与脱敏复现步骤。
+
+开发检查：`npm run check`。只读检查目标项目：
 
 ```sh
 node skills/js-superagent-skill/scripts/inspect.mjs --project /absolute/target/project
 ```
 
-该工具只读取依赖元数据和工具版本，不读取凭据或初始化服务。安装检查通过不代表后台、账号、卡片回调和业务结算均已验收。
+可安装内容仅位于 `skills/js-superagent-skill/`；README、架构文档、测试、CI 与版本管理留在仓库层。[目录与版本规则 →](docs/maintaining.md)
 
-## 版本管理
+## 致谢与许可
 
-技能使用独立 SemVer，不跟随 js-superagent 或 js-longrun 的包版本。VERSION、package.json 和 SKILL.md 的 metadata.version 必须一致，CHANGELOG.md 记录每次变化。
+感谢 [dsh-superagent-prototype](https://github.com/deepseek-ai/dsh-superagent-prototype) 提供设计与领域核心参考。js-superagent 保留了[上游来源及许可声明](https://github.com/imjszhang/js-superagent/blob/main/THIRD_PARTY_NOTICES.md)。本技能独立维护，不是 DeepSeek 或飞书的官方产品。
 
-- PATCH：修正文档、诊断或兼容性，不改变使用合同。
-- MINOR：新增操作流程或工具能力。
-- MAJOR：不兼容的入口、安装格式或行为变化。0.x 阶段的不兼容变化提升 MINOR 并说明迁移要求。
-
-更新时修改三处版本及 changelog，运行 `npm run check`，提交后创建带注释的 `v<版本>` 标签并同步。标签不移动；有修正就发布新版本。`RELEASE_TAG=v0.2.1 npm run check:version` 可校验标签对应关系。GitHub CI 检查每次提交和标签。此技能不是 npm 包，版本标记不执行 npm publish。
-
-宿主安装记录单独放在宿主管理目录（例如 `skills/installations/js-superagent-skill.json`），不放入技能内容目录；记录包含 version、sourceTag、sourceCommit 和文件 SHA-256。升级前验证旧清单，遇到本地修改先合并，不能覆盖；随后按指定标签复制资源并重新生成原生入口。回退使用旧标签重新安装技能文件，不回滚业务状态库或运行包。安装技能的新版本不自动升级其管理的依赖。
-
-## 仓库分层
-
-```text
-skills/js-superagent-skill/   可安装技能：SKILL.md、agents、references、scripts/inspect.mjs、LICENSE
-scripts/                     仓库开发与版本校验工具
-test/                       仓库测试（不安装）
-.github/                     CI（不安装）
-README.md                    项目说明（不安装）
-VERSION / CHANGELOG.md       版本及历史（不安装）
-package.json / LICENSE       项目元数据与许可
-```
-
-安装只复制技能目录；版本随 SKILL.md 的 metadata.version 分发。仓库校验工具、测试、项目说明、变更历史和宿主安装清单都不属于技能运行内容。0.1.x 的仓库根技能目录迁到上述路径，旧安装副本中的 VERSION、CHANGELOG.md、INSTALLATION.json 应在验证未被修改后迁出或清理；安装清单保留在宿主管理目录。
-
-## 许可证
-
-[MIT](LICENSE)
+[MIT License](LICENSE)
