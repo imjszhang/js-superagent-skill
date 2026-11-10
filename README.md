@@ -2,7 +2,7 @@
 
 # js-superagent-skill
 
-**给你的项目，配一个 Project Agent。**
+![给你的项目配一个 Project Agent。长期任务，持续维护：按计划推进，接着上次做，需要你时交接。](docs/assets/project-agent-hero-v1.png)
 
 持续维护长期任务，保留工作进度，需要你时再交接。
 

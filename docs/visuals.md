@@ -4,12 +4,37 @@
 
 ## 资产与用途
 
+- `assets/project-agent-hero-v1.png`：README 顶部主视觉，突出 Project Agent 与长期任务维护；与下方两张图使用统一的米白、青绿和暖金配色及纸张层叠插画。
 - `assets/project-agent-workflow-v1.png`：长期任务工作循环，供 README 使用。
 - `assets/project-agent-architecture-v1.png`：项目组件分工，供 README 与架构说明共用。
 
 图片属于仓库展示资料，不随可安装技能分发；技能版本保持 0.3.0。原始 Mermaid 保留为可编辑说明。修改流程语义时同时更新图文，不直接复用已经不符实现的配图。
 
 生成后核对了文字、箭头方向、人工审核与核验顺序，以及组件职责，并在 850 px 页面宽度下检查了可读性。图片是概念信息图，不是产品界面截图或运行证据。
+
+## 顶部主视觉提示词
+
+```text
+Use case: ads-marketing.
+Asset type: GitHub README top hero banner for js-superagent-skill.
+Primary request: Create one polished, inviting editorial hero illustration that makes the message immediately clear: give your PROJECT a Project Agent to maintain ongoing tasks over time.
+
+Canvas: wide landscape, 2:1 aspect ratio, high resolution. Designed to remain readable at 850 px wide. Warm off-white paper background (#FAF6EE), deep nearly-black ink (#0C2529), muted teal (#317D73), pale sage (#DCEBDD), and warm amber/gold (#E7AF4B). Match a companion set of warm off-white, teal and amber infographics, with soft layered paper-cut depth, fine outlines, quiet shadows, subtle paper texture and extremely restrained pale foliage at the bottom edges. Clean, warm, thoughtful documentation illustration.
+
+Composition: a spacious editorial split, slightly more than half of the width for text on the left, a single cohesive conceptual project illustration on the right. Comfortable safe margins. Strong headline hierarchy, no boxes around the headline, no crowded process chart, no thin unreadable text.
+Text, verbatim, with correct Simplified Chinese and clear Latin lettering:
+Small eyebrow: "js-superagent-skill"
+Huge two-line headline:
+"给你的项目"
+"配一个 Project Agent"
+Make the words "Project Agent" teal with a restrained amber brush underline, keeping the entire headline highly legible and not overlapped by art.
+Medium supporting line: "长期任务，持续维护。"
+Small but clearly readable bottom line under the supporting line: "按计划推进 · 接着上次做 · 需要你时交接"
+
+Right illustration: a substantial warm golden project folder containing neatly layered documents on a small sage base. Nestled around it are three small meaningful paper objects: a teal desk calendar, a tidy stack of work records with a bookmark, and a warm amber human-decision checklist card. A single elegant, gentle teal curved path connects these objects around the project folder, suggesting continued work and accumulation, with a few subtle directional arrowheads and sequential document layers; no infinity symbol. The project folder, not any robot, is the main character. An abstract small teal layered-paper emblem may sit on the folder without any lettering. Human-decision card uses simple tick/wait symbols, no real app screenshot. Keep ample white space; illustration must feel like the same soft paper-cut family as a project workflow infographic.
+
+Semantic constraints: visual metaphor for configured periodic work and saved history. Do not suggest unlimited operation, automatic publishing, guaranteed results, or that the skill itself is a background service. No giant robot, personal assistant avatar, chat bubbles, fake interface, glowing circuits, neon, detailed server architecture, logos of external platforms, or component-name soup. No real project names except the exact public product name above; no user identities, IDs, paths, account data or private business content. Use only the four text elements specified, no additional labels. Typography must be accurate, crisp, balanced and readable at README width.
+```
 
 ## 长期任务图提示词
 
