@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 — 2026-11-10
+
+- Add project-local runtime `knowledge/`, with one Markdown document per coordinator-only knowledge entry and a default project overview template.
+- Add deterministic, revision-checked synchronization that preserves Worker prompts, shared knowledge and existing coordinator guidance.
+- Add a native service CLI wrapper that synchronizes before startup/restart, including login starts; no runtime package modification or hot reload.
+- Document existing-service migration, author edits, size limits and business-context acceptance.
+
 ## 0.4.0 — 2026-11-10
 
 - Add project-aware first-use guidance after installation and deployment, including a concrete suggested next message.
