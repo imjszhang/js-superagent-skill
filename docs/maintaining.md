@@ -42,3 +42,5 @@ README 和 docs 是仓库说明，不随技能安装。仅修改这些文件时�
 0.5.0 增加协调者专属知识目录与启动包装入口。兼容工具固定验证 js-superagent 0.14.0-alpha.1：只读预演依赖该版本内部 PromptRegistry/SQLite，写入使用公开接口，服务通过公开 cliPath 安装。改变支持版本时重跑知识隔离、文件增删、冲突和启动回执测试。真实宿主知识与凭据不进入技能仓库。
 
 0.6.0 增加材料部署与恢复指引。版本/schema 矩阵统一维护在可安装的 `scripts/compatibility.mjs`；安装检查只提示兼容布局，运行能力从公开 SDK 读取。开发依赖继续覆盖旧 alpha.1。使用 `JS_SUPERAGENT_CANDIDATE_PACKAGE=/绝对路径/候选包 npm test` 对新精确构建重复知识及材料配置测试；候选测试从该目录的 package.json 导出定位，不依赖技能仓库旁的源码。新包支持知识 schema 14/15，旧包只允许14；不在 wrapper 内迁移。
+
+0.6.1 将准确兼容矩阵扩展到 js-superagent 0.15.0-alpha.1 / schema 14、15，保留 0.15.0-alpha.0 与 0.14.0-alpha.1–alpha.4。候选材料测试仅接受这两个 0.15 准确版本，未知补丁版本仍拒绝；分别对旧开发依赖及选定候选目录运行检查，兼容性结果不替代 npm 发布确认或项目授权。
