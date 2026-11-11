@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.3 — 2026-11-11
+
+- Add the exact js-superagent 0.15.0-alpha.3 package layout with schema 14/15, preserving every previously supported package/schema pair.
+- Distinguish fixed host ticket receipts from material reports when verifying the runtime fix for receipts incorrectly withdrawn as a Worker starts.
+- Keep post-completion explanation corrections in the reply without reopening tickets or rewriting historical reports; ordinary status questions do not trigger recovery.
+
 ## 0.6.2 — 2026-11-11
 
 - Add the exact js-superagent 0.15.0-alpha.2 package layout with schema 14/15 to the compatibility matrix, retaining all previously supported versions.

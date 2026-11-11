@@ -31,7 +31,7 @@
 | 已核对包布局 | 可同步知识的状态格式 |
 | --- | --- |
 | 0.14.0-alpha.1 / alpha.2 / alpha.3 / alpha.4 | schema 14 |
-| 0.15.0-alpha.0 / alpha.1 / alpha.2 | schema 14、schema 15 |
+| 0.15.0-alpha.0 / alpha.1 / alpha.2 / alpha.3 | schema 14、schema 15 |
 
 适配器按准确版本与 schema 配对检查，未知组合明确拒绝。新包兼容旧知识配置不等于已启用材料能力；材料必须按[项目材料与执行环境](materials.md)单独配置。兼容验证可使用构建产物，不代表候选版本已发布到 npm；部署时核对实际来源。检查和知识同步均不承担 schema 迁移，schema 15 由运行包公开升级流程完成。
 
