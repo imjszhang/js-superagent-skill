@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.2 — 2026-11-11
+
+- Add the exact js-superagent 0.15.0-alpha.2 package layout with schema 14/15 to the compatibility matrix, retaining all previously supported versions.
+- Clarify that stale material reports provide explicit historical metadata; a current investigation must read authorized material again rather than reuse old report content.
+
 ## 0.6.1 — 2026-11-11
 
 - Support the exact js-superagent 0.15.0-alpha.1 package layout with schema 14/15, retaining 0.15.0-alpha.0 and the earlier 0.14.0-alpha.1–alpha.4 compatibility matrix.
