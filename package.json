@@ -1,6 +1,6 @@
 {
   "name": "js-superagent-skill",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "description": "Project Agent skill for designing, deploying and maintaining ongoing project tasks.",
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "check": "npm run check:version && node --check skills/js-superagent-skill/scripts/inspect.mjs && node --check skills/js-superagent-skill/scripts/knowledge.mjs && node --check skills/js-superagent-skill/scripts/project-agent.mjs && npm test",
+    "check": "npm run check:version && node --check skills/js-superagent-skill/scripts/inspect.mjs && node --check skills/js-superagent-skill/scripts/knowledge.mjs && node --check skills/js-superagent-skill/scripts/project-agent.mjs && node --check skills/js-superagent-skill/scripts/compatibility.mjs && npm test",
     "check:version": "node scripts/check-version.mjs"
   },
   "devDependencies": {

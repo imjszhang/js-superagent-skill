@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0 — 2026-11-11
+
+- Add explicit project material deployment, bounded current reads, workspace preparation, local adoption and frozen-task ownership guidance.
+- Preserve coordinator-only knowledge and require separate material authorization, source identity and output destination configuration.
+- Support the 0.15.0-alpha.0 package layout with schema 14/15 while keeping the earlier alpha.1–alpha.4 schema 14 matrix and refusing unknown combinations.
+- Keep installation inventory read-only and require public capability checks before enabling materials.
+
 ## 0.5.3 — 2026-11-11
 
 - Support the verified js-superagent 0.14.0-alpha.4 package layout while preserving earlier compatible versions.

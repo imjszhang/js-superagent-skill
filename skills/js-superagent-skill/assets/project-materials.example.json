@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "project-documents",
+      "project": "self",
+      "include": ["AGENTS.md", "README.md", "docs", "skills"],
+      "exclude": ["docs/private"],
+      "views": ["current"],
+      "readers": [{"source": "local", "id": "operator"}],
+      "destinations": [{"source": "local", "id": "operator"}]
+    }
+  ],
+  "defaults": {
+    "version": 1,
+    "access": "host-only",
+    "sources": [{"id": "project-documents", "view": {"kind": "current"}}],
+    "allowPreparation": false,
+    "allowApply": false
+  }
+}
