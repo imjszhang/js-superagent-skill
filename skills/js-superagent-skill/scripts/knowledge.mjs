@@ -4,9 +4,9 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath, pathToFileURL} from 'node:url';
+import {supportedRuntimeVersions, assertKnowledgeSchema} from './compatibility.mjs';
 
 // This compatibility adapter deliberately targets explicitly verified package layouts.
-const SUPPORTED_VERSIONS = ['0.14.0-alpha.1', '0.14.0-alpha.2', '0.14.0-alpha.3', '0.14.0-alpha.4'];
 const MARKER = 'js-superagent-skill:knowledge';
 const END = `<!-- /${MARKER} -->`;
 const sha = value => createHash('sha256').update(value).digest('hex');
@@ -23,8 +23,8 @@ export async function resolveRuntime(projectRoot) {
   // Do not resolve a dependency from the skill's own repository.
   const packageRoot = path.join(root, 'node_modules', 'js-superagent');
   const manifest = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json'), 'utf8'));
-  if (manifest.name !== 'js-superagent' || !SUPPORTED_VERSIONS.includes(manifest.version)) {
-    throw Error(`Knowledge adapter requires js-superagent ${SUPPORTED_VERSIONS.join(' or ')}; inspect compatibility before upgrading`);
+  if (manifest.name !== 'js-superagent' || !supportedRuntimeVersions.includes(manifest.version)) {
+    throw Error(`Knowledge adapter requires js-superagent ${supportedRuntimeVersions.join(' or ')}; inspect compatibility before upgrading`);
   }
   const exported = manifest.exports?.['.']?.import;
   if (typeof exported !== 'string' || !exported.startsWith('./')) throw Error('Unsupported runtime package entry');
@@ -33,7 +33,7 @@ export async function resolveRuntime(projectRoot) {
   if (!fs.realpathSync(entry).startsWith(realPackage + path.sep)) throw Error('Runtime did not resolve from the target project');
   const sdk = await import(pathToFileURL(entry).href);
   if (typeof sdk.projectStateDirectory !== 'function' || typeof sdk.createProjectAgent !== 'function') throw Error('Required runtime interfaces are unavailable');
-  return {sdk, cliPath:path.join(realPackage, 'bin/js-superagent.mjs'), packageRoot:realPackage};
+  return {sdk, cliPath:path.join(realPackage, 'bin/js-superagent.mjs'), packageRoot:realPackage, version:manifest.version};
 }
 
 export function loadKnowledge(directory) {
@@ -80,7 +80,7 @@ export function planKnowledge(status, entries) {
   return {changed:next !== current, patch:{overrides}};
 }
 
-function openExisting(root, sdk) {
+function openExisting(root, sdk, version) {
   const directory = sdk.projectStateDirectory(root);
   if (!fs.existsSync(path.join(directory, 'config.json')) || !fs.existsSync(path.join(directory, 'state.sqlite'))) {
     throw Error('Initialize and verify this project before syncing knowledge; no state was created');
@@ -92,15 +92,15 @@ function openExisting(root, sdk) {
   if (!identity.initialized || identity.matches !== true) throw Error('Project identity does not match this runtime directory');
   const db = new DatabaseSync(path.join(directory, 'state.sqlite'), {readOnly:true});
   try {
-    if (Number(db.prepare('PRAGMA user_version').get().user_version) !== 14) throw Error('Knowledge sync requires state schema 14; upgrade separately');
+    assertKnowledgeSchema(version, Number(db.prepare('PRAGMA user_version').get().user_version));
     return {directory, db};
   } catch (error) { db.close(); throw error; }
 }
 
 export async function syncKnowledge(projectRoot, {apply=false} = {}) {
   if (!path.isAbsolute(projectRoot)) throw Error('--project must be an absolute directory');
-  const root = fs.realpathSync(projectRoot), {sdk,packageRoot} = await resolveRuntime(root);
-  const {directory:stateDirectory,db} = openExisting(root, sdk);
+  const root = fs.realpathSync(projectRoot), {sdk,packageRoot,version} = await resolveRuntime(root);
+  const {directory:stateDirectory,db} = openExisting(root, sdk, version);
   const directory = path.join(stateDirectory, 'knowledge');
   let entries, plan, revision;
   try {

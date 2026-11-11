@@ -4,6 +4,7 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {runtimeCompatibility} from './compatibility.mjs';
 const names=['js-superagent','js-longrun','js-agent-runtime','@larksuiteoapi/node-sdk'];
 export function inspectProject(project) {
   if(!path.isAbsolute(project))throw Error('--project must be an absolute directory');
@@ -27,7 +28,8 @@ export function inspectProject(project) {
   });
   return {project:root,node:process.versions.node,packageManager:pkg.packageManager??null,
     lockfiles:['package-lock.json','pnpm-lock.yaml','yarn.lock','bun.lock','bun.lockb'].filter(f=>fs.existsSync(path.join(root,f))),
-    dependencies,scope:'Read-only installation inventory; does not establish account, executor or service readiness'};
+    dependencies,runtimeCompatibility:runtimeCompatibility(dependencies.find(item=>item.name==='js-superagent')?.installed?.version),
+    scope:'Read-only installation inventory; does not establish account, executor, material grants or service readiness'};
 }
 function version(command){
   const r=spawnSync(command,['--version'],{encoding:'utf8',timeout:5000,maxBuffer:65536,shell:false});

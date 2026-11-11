@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { fork } from 'node:child_process';
-import { createProjectAgent, projectStateDirectory } from 'js-superagent';
 import { loadKnowledge, syncKnowledge, resolveRuntime } from '../skills/js-superagent-skill/scripts/knowledge.mjs';
 
-const packageDirectory = fileURLToPath(new URL('../node_modules/js-superagent', import.meta.url));
+const packageDirectory = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE ?? fileURLToPath(new URL('../node_modules/js-superagent', import.meta.url)));
+const runtimeManifest = JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'), 'utf8'));
+const { createProjectAgent, projectStateDirectory } = await import(pathToFileURL(path.resolve(packageDirectory, runtimeManifest.exports['.'].import)).href);
 function sandbox(t) {
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'coordinator-knowledge-')));
   const root = path.join(base, 'project'); fs.mkdirSync(root);
@@ -22,7 +23,7 @@ function sandbox(t) {
   });
   fs.mkdirSync(path.join(root, 'node_modules'));
   fs.symlinkSync(packageDirectory, path.join(root, 'node_modules/js-superagent'));
-  fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ type: 'module', dependencies: { 'js-superagent': '0.14.0-alpha.1' } }));
+  fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ type: 'module', dependencies: { 'js-superagent': runtimeManifest.version } }));
   return { base, root };
 }
 async function withAgent(root, operation) {

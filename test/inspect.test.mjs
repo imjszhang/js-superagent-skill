@@ -17,3 +17,11 @@ test('reports installed and declared versions without executing dependency code 
   assert.equal(fs.readFileSync(path.join(root,'package.json'),'utf8'),pkg);assert.ok(!JSON.stringify(result).includes('must-not-appear'));
 });
 test('rejects ambiguous relative roots',()=>assert.throws(()=>inspectProject('.'),/absolute/));
+test('new material package inventory requires public capability checks and performs no migration',t=>{
+  const root=temporary(t),dir=path.join(root,'node_modules/js-superagent');fs.mkdirSync(dir,{recursive:true});
+  fs.writeFileSync(path.join(dir,'package.json'),JSON.stringify({name:'js-superagent',version:'0.15.0-alpha.0'}));
+  const before=fs.readdirSync(root,{recursive:true});const result=inspectProject(root);
+  assert.deepEqual(result.runtimeCompatibility.knowledge.schemas,[14,15]);
+  assert.equal(result.runtimeCompatibility.materials,'check-public-capabilities');
+  assert.deepEqual(fs.readdirSync(root,{recursive:true}),before);
+});
