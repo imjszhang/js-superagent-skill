@@ -21,7 +21,7 @@ test('material deployment sample starts with one local read-only source and no p
 test('candidate package configures material grants publicly and preserves coordinator-only knowledge at schema 15', { skip: !process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE }, async t => {
   const candidate = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE);
   const manifest = JSON.parse(fs.readFileSync(path.join(candidate, 'package.json'), 'utf8'));
-  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
+  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
   const sdk = await import(pathToFileURL(path.resolve(candidate, manifest.exports['.'].import)).href);
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'skill-materials-'))), root = path.join(base, 'project');
   fs.mkdirSync(path.join(root, 'node_modules'), { recursive: true });
