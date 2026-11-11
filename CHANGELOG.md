@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.3 — 2026-11-11
+
+- Support the verified js-superagent 0.14.0-alpha.4 package layout while preserving earlier compatible versions.
+- Distinguish candidate recovery from failed-ticket recovery and document bounded final-report continuation with complete conversation acceptance checks.
+
 ## 0.5.2 — 2026-11-11
 
 - Support the verified js-superagent 0.14.0-alpha.3 layout for conversation-based candidate recovery while preserving earlier compatible versions.
