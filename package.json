@@ -1,6 +1,6 @@
 {
   "name": "js-superagent-skill",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "type": "module",
   "description": "Project Agent skill for designing, deploying and maintaining ongoing project tasks.",

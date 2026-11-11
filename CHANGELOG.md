@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1 — 2026-11-11
+
+- Support the exact js-superagent 0.15.0-alpha.1 package layout with schema 14/15, retaining 0.15.0-alpha.0 and the earlier 0.14.0-alpha.1–alpha.4 compatibility matrix.
+- Exercise both supported 0.15 material layouts through the candidate-package tests; unknown package/schema combinations remain rejected.
+
 ## 0.6.0 — 2026-11-11
 
 - Add explicit project material deployment, bounded current reads, workspace preparation, local adoption and frozen-task ownership guidance.
