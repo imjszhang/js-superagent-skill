@@ -14,7 +14,7 @@
 
 已配置飞书的项目每次部署、升级或恢复都检查以下链路。WebSocket 已连接、收到一次 @ 或能发回复，均不能证明机器人能够读取群历史并补收离线消息。
 
-1. 核对 CLI profile 与后台实际使用的应用、租户、机器人及目标群。`auth status` 和当前 CLI 的 `auth scopes --json` 可返回用户/tokenType=user 权限，不用作 bot 授权证明。按[查询租户授权状态](https://open.feishu.cn/document/application-v6/scope/list.md)，先看 `lark-cli api --help`，再调用 `lark-cli api GET /open-apis/application/v6/scopes --as bot`；该接口使用租户身份且无需额外 scope。检查所需权限的 `grant_status: 1`，响应带 `type` 时须为 `tenant`，不是同名 user 权限。群历史在基础读取权限（如 `im:message:readonly`）之外还要求 bot 的 `im:message.group_msg`，见[历史消息 API](https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message/list)。缺少时在飞书应用后台添加该应用身份权限、发布并完成所需审核，再核对有效 grant；用户 `auth login`、切换 `--as user` 或只申请审核已配置权限不能替代缺失权限的配置与发布。
+1. 核对 CLI profile 与后台实际使用的应用、租户、机器人及目标群。`auth status` 和当前 CLI 的 `auth scopes --json` 可返回用户/tokenType=user 权限，不用作 bot 授权证明。按[查询租户授权状态](https://open.feishu.cn/document/application-v6/scope/list.md)，先看 `lark-cli api --help`，再调用 `lark-cli api GET /open-apis/application/v6/scopes --as bot`；该接口使用租户身份且无需额外 scope。检查所需权限的 `grant_status: 1`，并核对实际响应的 `scope_type`；若客户端以 `type`/`tokenType` 展示同一身份事实，也须核对，必须明确匹配 `tenant` 应用身份。字段未提供时，须结合下一步同一应用的 bot 实际 API 成功共同验证，不能把同名 user grants 算作 bot 权限。群历史在基础读取权限（如 `im:message:readonly`）之外还要求 bot 的 `im:message.group_msg`，见[历史消息 API](https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message/list)。缺少时在飞书应用后台添加该应用身份权限、发布并完成所需审核，再核对有效 grant；用户 `auth login`、切换 `--as user` 或只申请审核已配置权限不能替代缺失权限的配置与发布。
 2. 用同一应用的 bot 身份对已配置群做实际历史读取，再对该群真实返回的话题 ID 做话题读取。先查当前 CLI help；下面的少量读取不会接单、运行 Worker 或改变运行库游标。`--dry-run` 只检查请求形状，不能代替实际 API 成功。返回空列表时，核对已知消息与时间范围，不能据此证明机器人看得到待补收消息。
 
    ```sh

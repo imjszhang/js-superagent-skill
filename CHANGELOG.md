@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.6 — 2026-11-13
+
+- Correct Feishu grant identity checks to inspect `scope_type`, while recognizing equivalent client `type`/`tokenType` fields; never count user grants as bot permissions.
+- Require actual bot API verification alongside grant checks when an identity field is absent; retain the existing runtime compatibility and configuration.
+
 ## 0.6.5 — 2026-11-13
 
 - Add the exact js-superagent 0.15.0-alpha.5 layout with schema 14/15 and keep prior layouts; unknown versions remain rejected.
