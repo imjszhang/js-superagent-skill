@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.8 — 2026-11-13
+
+- Add exact js-superagent 0.15.0-alpha.7 compatibility and callback-invalidation recovery guidance. Preserve request identity, existing grants and explicit recovery of earlier failures.
+
 ## 0.6.7 — 2026-11-13
 
 - Explain retained pre-ticket Feishu topic supplements without changing mention authority, batching, material grants or historical replay.
