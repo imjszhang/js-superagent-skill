@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.7 — 2026-11-13
+
+- Explain retained pre-ticket Feishu topic supplements without changing mention authority, batching, material grants or historical replay.
+- Document bounded assessment-context refresh, original-request recovery and verified wrapper/child shutdown before restart or upgrade.
+- Add the exact js-superagent 0.15.0-alpha.6 package layout and retain prior layout checks; keep configuration and dependency choices unchanged.
+
 ## 0.6.6 — 2026-11-13
 
 - Correct Feishu grant identity checks to inspect `scope_type`, while recognizing equivalent client `type`/`tokenType` fields; never count user grants as bot permissions.
