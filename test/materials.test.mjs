@@ -21,7 +21,7 @@ test('material deployment sample starts with one local read-only source and no p
 test('candidate package configures material grants publicly and preserves coordinator-only knowledge at schema 15', { skip: !process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE }, async t => {
   const candidate = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE);
   const manifest = JSON.parse(fs.readFileSync(path.join(candidate, 'package.json'), 'utf8'));
-  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
+  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
   const sdk = await import(pathToFileURL(path.resolve(candidate, manifest.exports['.'].import)).href);
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'skill-materials-'))), root = path.join(base, 'project');
   fs.mkdirSync(path.join(root, 'node_modules'), { recursive: true });
@@ -54,4 +54,41 @@ test('candidate package configures material grants publicly and preserves coordi
     assert.match(after.assembled.coordinator.text, /Coordinator navigation only/);
     assert.deepEqual(app.getMaterialSettings(), saved, 'Knowledge sync never changes material grants');
   } finally { if (app) { await app.stop(); app.close(); } }
+});
+
+test('installed material contract rejects selected grants in alpha.4 and preserves unselected ordinary tasks', { skip: !process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE }, async t => {
+  const candidate = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE);
+  const manifest = JSON.parse(fs.readFileSync(path.join(candidate, 'package.json'), 'utf8'));
+  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4'].includes(manifest.version));
+  const sdk = await import(pathToFileURL(path.resolve(candidate, manifest.exports['.'].import)).href);
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'skill-material-denial-'))), root = path.join(base, 'project');
+  fs.mkdirSync(root);
+  const original = {};
+  for (const [key, value] of Object.entries({ JS_SUPERAGENT_HOME: path.join(base, 'state'), JS_SUPERAGENT_MACHINE_DIRECTORY: path.join(base, 'machine') })) {
+    original[key] = process.env[key]; process.env[key] = value;
+  }
+  t.after(() => { for (const [key, value] of Object.entries(original)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } fs.rmSync(base, { recursive: true, force: true }); });
+  const app = sdk.createProjectAgent({ projectRoot: root }).init();
+  try {
+    await app.prepareExecution();
+    for (const [field, code] of [['destinations', 'MATERIAL_DESTINATION_DENIED'], ['readers', 'MATERIAL_ACCESS_DENIED']]) {
+      const settings = structuredClone(example);
+      settings.entries[0][field] = [{ source: 'feishu', id: 'fictional-group-or-reader' }];
+      app.configureMaterials(settings, { expectedRevision: app.getMaterialSettings().revision });
+      const before = app.list().length;
+      assert.throws(() => app.submit({ text: 'inspect selected source', materials: settings.defaults }), { code });
+      assert.equal(app.list().length, before, 'An explicit denied grant creates no ticket');
+      if (manifest.version === '0.15.0-alpha.4') {
+        assert.throws(() => app.submit({ text: 'inspect default source' }), { code });
+        assert.equal(app.list().length, before, 'A denied default creates no replacement ordinary ticket');
+      } else {
+        const legacy = app.submit({ text: 'historical optional defaults' });
+        assert.equal(app.getDetailed(legacy.id).materialBinding, null, 'Older package behavior remains visible rather than being attributed the alpha.4 guarantee');
+      }
+    }
+    const entriesOnly = structuredClone(example); delete entriesOnly.defaults;
+    app.configureMaterials(entriesOnly, { expectedRevision: app.getMaterialSettings().revision });
+    const ordinary = app.submit({ text: 'ordinary task without selected materials' });
+    assert.equal(app.getDetailed(ordinary.id).materialBinding, null);
+  } finally { await app.stop(); app.close(); }
 });

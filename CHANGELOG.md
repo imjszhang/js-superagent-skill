@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.4 — 2026-11-13
+
+- Add the exact js-superagent 0.15.0-alpha.4 layout with schema 14/15, retaining older compatibility and rejecting unverified versions.
+- Check group intake, sender admission, material readers and the actual output destination together; verify current uncommitted content and the reply in the originating group.
+- Document alpha.4 material binding failures without adding configuration options: selected defaults or explicit materials must bind, while tasks without selected materials retain ordinary execution.
+- Preserve old ticket history and inspect in-flight bindings before changing material settings; installation and configuration changes do not authorize replay.
+
 ## 0.6.3 — 2026-11-11
 
 - Add the exact js-superagent 0.15.0-alpha.3 package layout with schema 14/15, preserving every previously supported package/schema pair.

@@ -17,10 +17,12 @@
 1. 读取项目规则、业务入口和现有材料设置，确定实际需要的文件/目录。根规则、进入目录后适用的子规则、技能文档必须可读；规则依赖的文档也要纳入允许范围。避免只给正文路径却让 Worker 无法读取验收规则。
 2. 调用 `agent.materialCapabilities()`，核对材料合同与状态格式；查询实际执行器，受控读取必须具备 `boundedMaterialReadsVersion: 1`。版本号或 `inspect.mjs` 的安装提示不能证明能力已经开启。
 3. 依据授权填写[只读材料样例](../assets/project-materials.example.json)。样例仅本项目、本地操作者、current、禁止准备与应用；它不是已授权配置。按真实项目替换路径和身份，尤其是飞书读取者与会话目的地，不能把本地 `operator` 当成其他渠道身份。
-4. 先 `getMaterialSettings()`，再 `configureMaterials(settings, {expectedRevision: current.revision})`。保留已有条目；defaults 只用于之后的新工单，不修改旧工单绑定、原生会话或历史读取回执。
+4. 先 `getMaterialSettings()`，再 `configureMaterials(settings, {expectedRevision: current.revision})`。保留已有条目；defaults 为后续新工单选择材料，不重写旧工单绑定。修改材料设置会使已有冻结绑定失效，先核对在途工作；重试不会自动采纳新设置，原生会话与历史读取回执保留。
 5. DSH 受控读取使用 `materialAccess: 'host-only'`、`permission: 'read-only'`、`enableAgentTools: true`，不启用 managed jobs。普通编码模式保持原生工具，不声称具有相同路径限制。运行前核对工单的实际有效配置，而非只看项目默认值。
 
 CLI 的配置入口为 `materials status` 和 `materials set <配置文件> <当前修订>`；从项目已有 wrapper 调用。准备与快照使用 `materials snapshot <JSON文件>`、`materials prepare <工单ID> <JSON文件>`，检查或重试原准备使用 `materials prepare-status|prepare-retry <工单ID>`。本地应用使用 `materials apply-preview|apply|apply-recover <工单ID> <JSON文件>`，对应文件字段分别为 `{paths}`、`{plan,operationId}`、`{operationId,mode}`。字段与恢复 mode 取值仍以准确版本 help/类型为准。配置文件只保存操作者审阅过的声明，不能由模型传入任意根目录或命令。
+
+从 js-superagent 0.15.0-alpha.4 起，默认或显式选定的材料必须成功绑定；读取者或输出目的地不满足授权时明确失败，不启动无材料绑定的替代执行，也不增加“可选／必需”开关。仅登记 entries 不等于选定材料：未配置 defaults 且提交时未指定材料的任务保留原执行方式。0.15.0-alpha.0–alpha.3 的默认材料授权失败会继续普通执行，必须核对实际绑定，不能将新版本保证套到旧版本。群接入的目的地检查和真实 @ 验收见[飞书接入](feishu.md)。
 
 allow/deny 使用明确相对文件或目录，不支持 glob、正则或 Gitignore 语义。ignored 内容同样受范围检查。符号链接、硬链接普通文件与非常规文件不作为受控材料读取；不要为迁就它们改宽权限。内置排除不是通用秘密识别，业务回执与凭据应由项目配置明确区分。额外项目入口默认关闭，单纯登记到本机 registry 不产生读取授权。
 

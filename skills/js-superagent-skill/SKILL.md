@@ -2,7 +2,7 @@
 name: js-superagent-skill
 description: 为项目建立 Project Agent，提供首次接入与下一步建议，设计、启用并长期维护任务：延续项目记录、安排周期执行、接入人工审核、调整任务与恢复故障。用户希望项目持续开展工作、安装后开始使用或管理已有长期任务时使用；具体业务创作遵循项目规则。
 metadata:
-  version: "0.6.3"
+  version: "0.6.4"
 ---
 
 # 为项目建立并维护 Project Agent
