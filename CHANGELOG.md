@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.5 — 2026-11-13
+
+- Add the exact js-superagent 0.15.0-alpha.5 layout with schema 14/15 and keep prior layouts; unknown versions remain rejected.
+- Require bot application permission checks and actual group/thread history reads during Feishu deployment, upgrades and recovery; user authorization does not prove bot history access.
+- Separate read-only diagnosis from recovery: inspect persisted failures, cursor backlog and subscriptions before resuming, without runtime initialization, replay or health-state mutation.
+- Verify real mentions, disconnected group-message catch-up, non-mention follow-ups on active/subscribed threads, original-group replies and live/history deduplication through existing runtime paths, without new configuration switches.
+
 ## 0.6.4 — 2026-11-13
 
 - Add the exact js-superagent 0.15.0-alpha.4 layout with schema 14/15, retaining older compatibility and rejecting unverified versions.
