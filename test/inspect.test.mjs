@@ -25,3 +25,30 @@ test('new material package inventory requires public capability checks and perfo
   assert.equal(result.runtimeCompatibility.materials,'check-public-capabilities');
   assert.deepEqual(fs.readdirSync(root,{recursive:true}),before);
 });
+test('longrun inventory reads only manifests and reports configured storage without claiming service health',t=>{
+  const root=temporary(t),dir=path.join(root,'node_modules/js-longrun');fs.mkdirSync(dir,{recursive:true});
+  const config=JSON.stringify({schemaVersion:1,tasksDir:'automation/tasks',privateNote:'not inventory data'});
+  fs.writeFileSync(path.join(root,'longrun.config.json'),config);
+  fs.writeFileSync(path.join(dir,'package.json'),JSON.stringify({name:'js-longrun',version:'9.0.0-fixture',exports:{'.':'./index.mjs','./layout':'./layout.mjs','./service':'./service.mjs'}}));
+  for(const file of ['index','layout','service'])fs.writeFileSync(path.join(dir,`${file}.mjs`),'throw new Error("Inventory must not execute runtime code")');
+  const before=fs.readdirSync(root,{recursive:true});const result=inspectProject(root);
+  assert.equal(result.longrun.managementExport,'js-longrun/service');assert.equal(result.longrun.layoutExport,'js-longrun/layout');
+  assert.equal(result.longrun.configuration.tasksDir,'automation/tasks');assert.equal(result.longrun.service,'not-observed');
+  assert.equal(result.longrun.configuration.validation,'not-validated; use the installed longrun layout resolver');
+  assert.equal(fs.readFileSync(path.join(root,'longrun.config.json'),'utf8'),config);
+  assert.deepEqual(fs.readdirSync(root,{recursive:true}),before);assert.ok(!JSON.stringify(result).includes('not inventory data'));
+});
+test('longrun configuration failure remains visible and never becomes an empty healthy deployment',t=>{
+  const root=temporary(t),file=path.join(root,'longrun.config.json');fs.writeFileSync(file,'{broken');
+  const result=inspectProject(root);assert.equal(result.longrun.configuration.present,true);assert.ok(result.longrun.configuration.error);
+  assert.equal(result.longrun.service,'not-observed');assert.equal(result.longrun.managementExport,null);
+  assert.equal(fs.readFileSync(file,'utf8'),'{broken');
+});
+test('longrun inventory does not follow a configuration symlink or assume service support from a version',t=>{
+  const root=temporary(t),external=temporary(t),dir=path.join(root,'node_modules/js-longrun');fs.mkdirSync(dir,{recursive:true});
+  fs.writeFileSync(path.join(dir,'package.json'),JSON.stringify({name:'js-longrun',version:'999.0.0'}));
+  fs.writeFileSync(path.join(external,'secret.json'),JSON.stringify({tasksDir:'private-location'}));
+  fs.symlinkSync(path.join(external,'secret.json'),path.join(root,'longrun.config.json'));
+  const result=inspectProject(root);assert.ok(result.longrun.configuration.error);assert.equal(result.longrun.managementExport,null);
+  assert.ok(!JSON.stringify(result).includes('private-location'));assert.equal(result.longrun.service,'not-observed');
+});

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0 — 2026-11-15
+
+- Add longrun task-layout and independent runtime-management guidance, preserving existing task roots, frozen runs, host wrappers, operation locks and original service intent.
+- Use longrun’s own watcher/timer management and read-only health observations without changing js-superagent, js-agent-runtime or the Feishu callback owner.
+- Extend the read-only installation inventory with declared longrun configuration and management exports; never infer service readiness or import runtime code.
+- Preserve exact js-superagent 0.15.0-alpha.10 / alpha.11 knowledge and material compatibility, with isolated regression coverage.
+- Document explicit old-service cutover, post-write rollback limits, separate timer/card/settlement acceptance and candidate installation provenance.
+
 ## 0.6.8 — 2026-11-13
 
 - Add exact js-superagent 0.15.0-alpha.7 compatibility and callback-invalidation recovery guidance. Preserve request identity, existing grants and explicit recovery of earlier failures.

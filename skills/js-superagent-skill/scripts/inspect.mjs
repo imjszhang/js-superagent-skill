@@ -21,7 +21,8 @@ export function inspectProject(project) {
       if(!fs.existsSync(file))continue;
       const data=JSON.parse(fs.readFileSync(file,'utf8'));
       if(data.name!==name)continue;
-      installed={version:data.version,location:fs.realpathSync(path.dirname(file)),engines:data.engines??{},peerDependencies:data.peerDependencies??{}};
+      installed={version:data.version,location:fs.realpathSync(path.dirname(file)),engines:data.engines??{},peerDependencies:data.peerDependencies??{},
+        publicSubpaths: data.exports && typeof data.exports === 'object' ? Object.keys(data.exports).filter(key=>key.startsWith('./')) : []};
       break;
     }
     return {name,declared:pkg.dependencies?.[name]??pkg.devDependencies?.[name]??null,installed};
@@ -29,7 +30,25 @@ export function inspectProject(project) {
   return {project:root,node:process.versions.node,packageManager:pkg.packageManager??null,
     lockfiles:['package-lock.json','pnpm-lock.yaml','yarn.lock','bun.lock','bun.lockb'].filter(f=>fs.existsSync(path.join(root,f))),
     dependencies,runtimeCompatibility:runtimeCompatibility(dependencies.find(item=>item.name==='js-superagent')?.installed?.version),
+    longrun: longrunInventory(root,dependencies.find(item=>item.name==='js-longrun')?.installed),
     scope:'Read-only installation inventory; does not establish account, executor, material grants or service readiness'};
+}
+function longrunInventory(root,installed) {
+  const config=path.join(root,'longrun.config.json');
+  let configuration={present:false};
+  try {
+    const stat=fs.lstatSync(config);
+    if(!stat.isFile()||stat.isSymbolicLink()||stat.size>65536)throw Error('Expected a regular project configuration file of at most 64 KiB');
+    const data=JSON.parse(fs.readFileSync(config,'utf8'));
+    configuration={present:true,schemaVersion:data?.schemaVersion??null,tasksDir:typeof data?.tasksDir==='string'?data.tasksDir:null,
+      validation:'not-validated; use the installed longrun layout resolver'};
+  } catch(error) {
+    if(error.code!=='ENOENT')configuration={present:true,error:'Cannot inspect longrun.config.json; inspect its format and file type before operating'};
+  }
+  return {configuration,
+    managementExport:installed?.publicSubpaths?.includes('./service')?'js-longrun/service':null,
+    layoutExport:installed?.publicSubpaths?.includes('./layout')?'js-longrun/layout':null,
+    service:'not-observed',scope:'Manifest inventory only; exports do not establish API compatibility or service health'};
 }
 function version(command){
   const r=spawnSync(command,['--version'],{encoding:'utf8',timeout:5000,maxBuffer:65536,shell:false});

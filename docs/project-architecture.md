@@ -4,6 +4,8 @@
 
 本说明面向希望将持续 Agent 工作接入现有项目的维护者。基于 2026-11-10 对上游原型、关联项目文档及关键实现的核对；描述当前组合方式，不把研究设想当作已交付能力。
 
+2026-11-15 的 0.7.0 更新补充 longrun 独立运行管理；使用前核对所安装包是否提供 `layout` / `service` 接口。它不要求修改或升级 superagent、js-agent-runtime 或 lark-cli，原型的领域写入与启动管理边界保持。发布状态以各仓库正式版本为准。
+
 材料与执行环境扩展的部署合同见[项目材料与执行环境](../skills/js-superagent-skill/references/materials.md)。它延续既有工单/Assignment：协调者保存原请求与路由，Worker 判断技术步骤，宿主核验材料授权、执行 generation、验证与输出；skill 通过公开配置接入，longrun 保持冻结输入及成果结算所有权。knowledge 仍只供协调者理解项目，不变成授权库或实时材料。
 
 ## Project Agent 的定位
@@ -103,16 +105,20 @@ js-superagent-skill 仓库
 你的项目
 ├── 项目业务规则与输入            由项目自行组织
 ├── 业务适配器 / 调度入口         按需实现
-├── research/longrun/<task-id>/   任务定义、回合与审核历史
-├── working/longrun/             运行辅助数据
+├── <tasksDir>/<task-id>/         任务定义、回合、审核证据与长期记忆
+├── working/longrun/             兼容操作锁及尚被引用的历史记录
 └── 正式成果                     通过业务核验后写入
 
 用户状态目录（默认，可配置）
+├── ~/.js-longrun/projects/<项目身份>/
+│   └── longrun 部署、进程归属、心跳、日志和最近检查
 └── ~/.js-superagent/projects/<路径编码>/
     └── 工单数据库、配置、执行记录与工作区
 ```
 
 宿主技能安装清单放在 `skills/installations/` 等管理目录，记录来源标签、提交与哈希。业务实例、账号、候选和审核决定不复制到技能仓库。详情参见 [superagent 项目状态说明](https://github.com/imjszhang/js-superagent/blob/main/README.md)和 [longrun 集成说明](https://github.com/imjszhang/js-longrun/blob/main/docs/integration.md)。
+
+`tasksDir` 默认保持 `research/longrun`，新项目可以配置项目内相对目录。项目身份不随任务目录改变；配置切换不是历史迁移，也不扩大材料权限。回合继续使用冻结输入与输出路径，老回合与审核证据不改写。兼容操作锁暂留原位置，避免新旧调用者各持一把锁；常驻单实例与服务控制另有保护。具体部署与迁移边界见[长期任务目录与后台](../skills/js-superagent-skill/references/longrun-service.md)。
 
 ## 部署组成
 
@@ -121,10 +127,12 @@ js-superagent-skill 仓库
 | Coding Agent + Skill | 按用户任务检查、配置与维护 | 不常驻调度，不另建状态库 |
 | superagent 服务 | 工单执行、配置的协调能力与渠道处理 | 不判断全部宿主业务成果是否可采纳 |
 | longrun watcher | 观察持久状态变化，唤醒收集与核验 | 不开启新回合 |
-| 项目兜底定时器 | 补收、超时检查；获准时开到期回合 | 不直接执行模型或绕过开轮检查 |
+| longrun 兜底定时器 | 补收、超时检查；获准时开到期回合 | 不直接执行模型或绕过开轮检查 |
 | 宿主业务适配器 | 业务输入、定制执行、验证和成果写入 | 不复制另一套工单运行时 |
 
 `tick` 默认只收集和检查；显式允许开轮后才会开启合格回合。使用自定义业务路由时，watcher 和定时器都应调用注册了同一组路由的宿主入口。一个项目保持一个生产 watcher 与一个兜底定时入口，具体频率由项目配置；“每小时”是部署选择，不是包的固定协议。
+
+longrun 的服务管理器负责这两个入口，不复用 superagent 专属的服务管理器或执行租约。安装不启动，启动不启用任务；停止 longrun 不取消 Worker，也不停止 superagent。纯只读管理查询读取既有心跳与状态，并可调用 superagent 已有公开健康/身份接口；不通过业务 SDK 的 `.init()` 补造观察。等待审核、Worker 完成、业务结算和视图刷新分别显示，记录时间滞后也应可见。
 
 js-agent-runtime 提供一次执行尝试的 `plan`、`probe`、`run` 等接口，可供宿主适配器或可信子任务使用。superagent 自身也能直接调用其原生执行器，不能把 runtime 画成所有工单必经的一层。[runtime 文档](https://github.com/imjszhang/js-agent-runtime/blob/main/README.md)
 

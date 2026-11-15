@@ -81,3 +81,12 @@ test('real offline draft creation produces only local task files and cannot over
   assert.ok(report.changes.every(({ file }) => file.startsWith('project/')));
   assert.deepEqual(snapshot(unrelated), beforeOther);
 });
+test('runtime upgrade rehearsal retains a real frozen run and paused task while its deployment observations stay simulated',async t=>{
+  const root=await fixture(t,'runtime-upgrade-plan'),before=snapshot(root);
+  const state=(await offlineCli(root,['status','garden-candidate-review'])).state;
+  assert.equal(state.control,'paused');assert.equal(state.running.ticketId,'synthetic-garden-review-ticket');
+  assert.equal((await offlineCli(root,['status','garden-weekly-report'])).state.control,'draft');
+  assert.ok(Object.keys(before.entries).some(file=>file.endsWith('/runs/R0001/draft.json')));
+  await assert.rejects(offlineCli(root,['service','start']));
+  assert.deepEqual(snapshot(root),before);
+});

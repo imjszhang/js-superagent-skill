@@ -8,7 +8,7 @@ test('knowledge compatibility pins package and schema together without granting 
     assert.throws(() => assertKnowledgeSchema(version, 15), /inspect and upgrade separately/);
     assert.equal(runtimeCompatibility(version).materials, 'not-supported-by-this-adapter');
   }
-  for (const version of ['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7']) {
+  for (const version of ['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11']) {
     for (const schema of [14, 15]) assert.doesNotThrow(() => assertKnowledgeSchema(version, schema));
     assert.equal(runtimeCompatibility(version).materials, 'check-public-capabilities');
     assert.throws(() => assertKnowledgeSchema(version, 13));

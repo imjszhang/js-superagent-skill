@@ -39,6 +39,15 @@
       "account": "SIMULATED authorization missing; no account probe performed; human sign-in required"
     }
   },
+  "runtime-upgrade-plan": {
+    "request": "这个项目以前用自己的入口管理长期任务。现在想升级 longrun，把任务资料改放 automation/tasks，把后台记录放用户目录。候选审核的原工单和暂停状态要保留，不改 superagent。先检查现状，在项目里写一份可执行的切换计划；这次不改配置、不安装、不启停服务。",
+    "observations": {
+      "installation": "offline CLI supplied by the evaluation harness; actual project runtime dependencies absent",
+      "backend": "SIMULATED stopped by user; old watch and hourly tick were managed by the project wrapper tools/garden-agent.mjs; neither exists as a real service in this exercise",
+      "account": "not probed; no real account exists",
+      "history": "A paused review has an in-flight synthetic ticket created through the public longrun API. A report task remains draft."
+    }
+  },
   "unreadable-tasks": {
     "request": "我第一次用这个技能。先看看这个项目有没有长期任务、目前是什么状态，告诉我接下来怎么做；现在不创建、不修复、不改状态。",
     "observations": {

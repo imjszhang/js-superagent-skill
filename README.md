@@ -103,7 +103,7 @@ flowchart LR
 在目标项目中，把下面这段话交给 Codex 或 Claude Code：
 
 ```text
-从 https://github.com/imjszhang/js-superagent-skill 安装 v0.6.8 的
+从 https://github.com/imjszhang/js-superagent-skill 选择已发布的准确版本，安装其
 skills/js-superagent-skill/ 到当前项目的技能目录。
 检查已有同名技能，保留本地修改，并在技能目录外记录来源版本与提交。
 安装后读取该技能，检查本项目规则和现有任务，说明目前能做什么，
@@ -154,6 +154,8 @@ Agent 会检查并安装兼容的依赖，明确任务输入、成果、频率�
 
 **运行需要一台保持可用的机器、已配置的执行器和后台服务。** 当前组合基线需要 Node.js ≥ 22.13；飞书审核还需应用及权限。完成后台部署后，任务可以在当前聊天结束后继续；机器休眠、关机或服务停止会影响运行。[安装与配置 →](skills/js-superagent-skill/references/setup.md)
 
+任务资料可以放在项目选定的目录。支持新管理接口的 js-longrun 会单独管理持续监听与定时检查，把本机日志、心跳和部署记录放在自己的运行目录。你可以继续通过对话查看运行情况、暂停任务或升级后台，原有进度与审核记录继续保留；已有任务目录不会因改一项配置自动搬迁。[目录与后台管理 →](skills/js-superagent-skill/references/longrun-service.md)
+
 ## 背后如何运作
 
 Project Agent 是这些组件在你的项目中的组合。**项目保存业务规则与历史，运行组件推进任务，Skill 帮助你搭建和管理它们。**
@@ -163,7 +165,7 @@ Project Agent 是这些组件在你的项目中的组合。**项目保存业务�
 | 组件 | 在项目中做什么 | 项目 |
 |---|---|---|
 | 工单与执行 | 记录要做的事，安排 Agent 执行，接收人的回答 | [js-superagent](https://github.com/imjszhang/js-superagent) |
-| 长期任务 | 记住每项任务的进度，决定何时继续，核对并保存成果 | [js-longrun](https://github.com/imjszhang/js-longrun) |
+| 长期任务 | 记住任务进度，决定何时继续，核对成果，并管理自己的监听与定时后台 | [js-longrun](https://github.com/imjszhang/js-longrun) |
 | 执行适配 | 按需要调用具体的 Agent 工具 | [js-agent-runtime](https://github.com/imjszhang/js-agent-runtime) |
 | 飞书接入 | 配置账号、检查权限和排查飞书问题 | [lark-cli](https://github.com/larksuite/cli) |
 
@@ -180,7 +182,7 @@ js-agent-runtime 按需使用。日常卡片和回答由 js-superagent 的飞书
 - **持续工作有规则。** 任务按配置和授权运行，不会自动替项目决定所有新目标。暂停后续运行与取消正在执行的工作是不同操作。
 - **人的决定会被保留。** “稍后”项可显式重审；系统不会替你作出审核决定，也不会因此自动对外发布。
 - **完成还要核对。** 审核提交后，任务继续执行；结果经过检查才写入项目。状态变化触发及时收集，定时检查作兜底。
-- **仍需按项目验收。** 技能版本为 `0.6.8`，相关运行包仍包含 alpha 版本。已有测试不代表你的账号、工具和业务流程已经接通。
+- **仍需按项目验收。** 本分支技能版本为 `0.7.0`；可安装发布版本以仓库 Tags / Releases 为准，相关运行包仍包含 alpha 版本。已有测试不代表你的账号、工具和业务流程已经接通。
 
 ## 文档与参与
 
