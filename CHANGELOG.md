@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 — 2026-11-15
+
+- Validate the exact js-superagent 0.15.0-alpha.12 package layout for coordinator knowledge and material capabilities.
+- Preserve existing knowledge, grants, wrappers and recovery boundaries; this compatibility update does not change configuration or retry counts.
+
 ## 0.7.0 — 2026-11-15
 
 - Add longrun task-layout and independent runtime-management guidance, preserving existing task roots, frozen runs, host wrappers, operation locks and original service intent.
