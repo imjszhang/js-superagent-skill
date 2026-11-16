@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.3 — 2026-11-16
+
+- Add exact js-superagent 0.15.0-alpha.14 package compatibility for knowledge schema 14/15 and public material capabilities; reject unknown alpha.15.
+- Preserve existing knowledge, runtime rules, configuration and pinned development dependencies.
+
 ## 0.7.2 — 2026-11-16
 
 - Add exact js-superagent 0.15.0-alpha.13 knowledge/schema and material package compatibility, retaining older validated layouts and rejecting unknown versions.
