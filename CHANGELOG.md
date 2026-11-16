@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.4 — 2026-11-16
+
+- Add exact js-superagent 0.15.0-alpha.15 knowledge/schema and material-layout compatibility; reject unknown alpha.16.
+- Document stable process identity verification after a normal upgraded restart and retain explicit legacy-locality recovery boundaries.
+- Preserve knowledge, grants, task state, wrappers and pinned development dependencies.
+
 ## 0.7.3 — 2026-11-16
 
 - Add exact js-superagent 0.15.0-alpha.14 package compatibility for knowledge schema 14/15 and public material capabilities; reject unknown alpha.15.
