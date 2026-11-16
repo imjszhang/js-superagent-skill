@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.2 — 2026-11-16
+
+- Add exact js-superagent 0.15.0-alpha.13 knowledge/schema and material package compatibility, retaining older validated layouts and rejecting unknown versions.
+- Explain verified Worker input consumption, host unread-input fault notices and explicit recovery of the original ticket; preserve grants, sessions, budgets and retry limits.
+- Distinguish controlled fault-injection checks from real Feishu delivery, and history-first intake from delayed WebSocket delivery during upgrade acceptance.
+
 ## 0.7.1 — 2026-11-15
 
 - Validate the exact js-superagent 0.15.0-alpha.12 package layout for coordinator knowledge and material capabilities.
