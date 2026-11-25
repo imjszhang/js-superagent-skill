@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.5 — 2026-11-25
+
+- Explain skill capabilities, deployment stages and goal-based setup choices before guiding first use.
+
+- Improve deployment onboarding with project-specific capabilities, verified task intake and result locations, and everyday follow-up examples.
+- Guide the first authorized use through execution and result verification, preserving deployment-only scope and existing task identity.
+
 ## 0.7.4 — 2026-11-16
 
 - Add exact js-superagent 0.15.0-alpha.15 knowledge/schema and material-layout compatibility; reject unknown alpha.16.
