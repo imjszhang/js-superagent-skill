@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.7 — 2026-11-27
+
+- Add exact js-superagent 0.15.0-alpha.17 knowledge/schema and material-layout compatibility; reject unknown alpha.18.
+- Document DSH execution-path auditing, project-owned pinned installs, scoped dependency overrides, and frozen-session upgrade boundaries.
+- Keep the older development baseline and validate the new candidate separately before deployment.
+
 ## 0.7.6 — 2026-11-27
 
 - Add a maintenance guide for project task overviews, ticket business history and current execution, preserving component ownership, observation times and unknown historical attribution.
