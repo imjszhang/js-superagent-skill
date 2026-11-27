@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveRuntime, syncKnowledge } from './knowledge.mjs';
+import { inspectComponents, bindComponents, assertManagedBindingHome } from './components.mjs';
 
 export function parseInvocation(argv, cwd = process.cwd()) {
   const args = [...argv];
@@ -32,7 +33,15 @@ export async function main(argv = process.argv.slice(2)) {
     return;
   }
   const { project, args } = parseInvocation(argv);
-  const { sdk, cliPath } = await resolveRuntime(project);
+  if (args[0] === 'service' && args[1] === 'install') {
+    assertManagedBindingHome();
+    const selection = inspectComponents(project);
+    if (!selection.bound) {
+      if (selection.selection === 'existing-service-local') throw Error('Existing service is not bound. Preserve its options, stop and uninstall it, then bind components before reinstalling.');
+      bindComponents(project);
+    }
+  }
+  const { sdk, cliPath, nodeExecutable } = await resolveRuntime(project);
   const wrapper = fs.realpathSync(fileURLToPath(import.meta.url));
   if (args[0] === 'knowledge') {
     if (args.length !== 2 || !['check', 'sync'].includes(args[1])) throw Error('Use knowledge check|sync');
@@ -43,7 +52,7 @@ export async function main(argv = process.argv.slice(2)) {
   }
   if (args[0] === 'service' && args[1] === 'install') {
     await syncKnowledge(project); // Validate before changing installation; no prompt mutation.
-    const manager = sdk.createServiceManager({ projectRoot: project, cliPath: wrapper, ...installOptions(args.slice(2)) });
+    const manager = sdk.createServiceManager({ projectRoot: project, cliPath: wrapper, nodeExecutable, ...installOptions(args.slice(2)) });
     console.log(JSON.stringify(manager.install(), null, 2));
     return;
   }

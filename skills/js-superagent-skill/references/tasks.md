@@ -28,14 +28,14 @@
 
 ## 3. 创建草稿并验证计划
 
-已有宿主 wrapper 注册业务路由时，所有 task/tick/watch 操作继续使用该入口。先按[目录与后台](longrun-service.md)确认任务根；支持配置的版本可在新项目选择项目内目录，已有历史不能靠改配置迁移。以下是通用项目的例子，先核对所用版本 help；任务 ID、路径与频率由项目设计决定。
+已有宿主 wrapper 注册业务路由时，所有 task/tick/watch 操作继续使用该入口。先按[目录与后台](longrun-service.md)确认任务根；支持配置的版本可在新项目选择项目内目录，已有历史不能靠改配置迁移。以下是通用项目通过已选组件运行的例子，先核对所用版本 help；任务 ID、路径与频率由项目设计决定。
 
 ```sh
-./node_modules/.bin/js-longrun --project <root> list
-./node_modules/.bin/js-longrun --project <root> design weekly-report --type change-report@1
-./node_modules/.bin/js-longrun --project <root> create weekly-report --type change-report@1 --goal '总结提供的本地资料变化'
-./node_modules/.bin/js-longrun --project <root> validate weekly-report
-./node_modules/.bin/js-longrun --project <root> plan weekly-report
+node <skill>/scripts/components.mjs --project <root> exec js-longrun list
+node <skill>/scripts/components.mjs --project <root> exec js-longrun design weekly-report --type change-report@1
+node <skill>/scripts/components.mjs --project <root> exec js-longrun create weekly-report --type change-report@1 --goal '总结提供的本地资料变化'
+node <skill>/scripts/components.mjs --project <root> exec js-longrun validate weekly-report
+node <skill>/scripts/components.mjs --project <root> exec js-longrun plan weekly-report
 ```
 
 create 生成 draft；编辑 task.json 和 task.md 后再 validate/plan，检查实际输入、输出边界与依赖。重复 ID 先读现有任务，不覆盖。可参考经过离线测试的 [报告定义](../assets/report-weekly.task.json)和 [审核定义](../assets/review-weekly.task.json)：它们是示例，需替换 ID、时区、资料路径与规则；不能复制示例就启用生产。内置输入必须是项目内真实 UTF-8 普通文件。

@@ -1,3 +1,5 @@
+// These fixtures exercise explicit project-local compatibility, independently of host globals.
+process.env.JS_SUPERAGENT_COMPONENT_SOURCE='local';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';

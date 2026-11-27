@@ -17,7 +17,7 @@
 ## 仓库分层
 
 ```text
-skills/js-superagent-skill/   可安装技能：SKILL.md、agents、references、scripts/inspect.mjs、assets、LICENSE
+skills/js-superagent-skill/   可安装技能：SKILL.md、agents、references、scripts/、assets、LICENSE
 docs/                       架构与维护说明（不安装）
 scripts/                    仓库开发与版本校验工具
 test/                       仓库测试（不安装）
@@ -69,3 +69,14 @@ README 和 docs 是仓库说明，不随技能安装。仅修改这些文件时�
 开发依赖继续固定 js-superagent `0.14.0-alpha.1` 与 js-longrun `0.1.0-alpha.2`，先运行默认 `npm run check`，再对已打包并解包的 alpha.16 使用 `JS_SUPERAGENT_CANDIDATE_PACKAGE=/绝对路径/候选包 npm run check`。该环境变量替换知识与材料测试使用的 superagent，长期任务样例仍验证旧 js-longrun 基线；新 longrun 组合需由包自身及隔离宿主接入检查另留证。候选检查通过不代表 npm 已发布、已有部署已升级或真实飞书卡片已送达。
 
 0.7.6 验收（2026-11-27）：默认旧基线完整检查 32 项通过、2 项候选专用测试跳过；实际打包并解包的 js-superagent `0.15.0-alpha.16` 完整检查 34 项全部通过，包括知识隔离、启动包装、材料配置和拒绝合同。候选源码为 `9904a5512814e65747d3533cfa55ca74d9da4fe0`，构建状态干净，tarball SHA-256 为 `abf0b8dcb54e97b3baaa506ac55d7dc7f22a4cfa85fa454c63218a727ab5b4d8`。这份记录证明技能与该构建的兼容，不宣称 npm 已发布或真实飞书已验收。
+
+
+## 0.8.0 共享安装与回归
+
+0.8.0 将组件发现、SDK 导入与本机项目绑定集中到可安装的 `scripts/components.mjs`。新部署默认复用全局组件，显式 local 绑定与已有服务沿用原路径；普通目标项目不需要 package.json。技能仓库本身的开发依赖仍使用准确本地版本，测试隔离其 Node/npm 环境，不能因开发者机器的全局包改变基线。
+
+`inspect` 只读清单；绑定是明确的部署写入，保存 Node 路径/版本、组件根/版本与清单摘要。非默认 `JS_SUPERAGENT_SKILL_HOME` 仅供前台 CLI/隔离测试；受管服务安装拒绝该模式，避免启动子进程丢失绑定位置。`knowledge.mjs` 和 `project-agent.mjs` 使用同一个组件解析器；宿主 SDK 使用 `importComponent(projectRoot, specifier)`，公开子路径遵循 exports。长期任务 CLI 可通过 `components.mjs --project <root> exec js-longrun ...` 调用；已有宿主业务 wrapper 继续保留。
+
+发布前覆盖：无 package.json 的全局安装、显式本地模式、两处冲突、绑定漂移、缺失/分裂 peer 与可选 SDK、Node/prefix 切换、后台无交互 PATH、多项目共享且状态隔离，以及原知识同步/启动回执。安装检查不得导入依赖或初始化状态。记录实际通过的测试与未覆盖平台，不把清单兼容当作真实模型/飞书验收。
+
+共享目录内更新包之前，必须盘点全部使用者并停止受影响服务；包路径绑定不能保护正在运行的进程免受文件被覆盖。版本化的独立用户安装位置可以保留并行版本，但本版不提供自动全局升级编排或多版本包管理。正式服务切换、任务状态保留和业务回退边界见可安装的 setup/operations 指引。宿主发布验收记录留在宿主，公开回归只使用独立虚构夹具。
