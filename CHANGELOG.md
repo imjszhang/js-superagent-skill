@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add a maintenance guide for project task overviews, ticket business history and current execution, preserving component ownership, observation times and unknown historical attribution.
+- Keep installation inspection manifest-only while reporting missing host-facts components and unobserved capability/synchronization; classify explicitly obtained public capability results separately from the knowledge schema matrix.
+- Cover old SDKs, synchronization diagnostics, final-query failure receipts, access revocation and state-preserving upgrade acceptance without adding services or copying live progress into knowledge.
+
 ## 0.7.5 — 2026-11-25
 
 - Explain skill capabilities, deployment stages and goal-based setup choices before guiding first use.

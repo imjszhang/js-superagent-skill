@@ -1,6 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runtimeCompatibility, assertKnowledgeSchema } from '../skills/js-superagent-skill/scripts/compatibility.mjs';
+import { runtimeCompatibility, assertKnowledgeSchema, hostFactsCompatibility } from '../skills/js-superagent-skill/scripts/compatibility.mjs';
+
+test('host-facts compatibility distinguishes unobserved, unavailable and supported public observations', () => {
+  assert.deepEqual(hostFactsCompatibility(), { status: 'not-observed', supported: null, requiredVersion: 1 });
+  assert.deepEqual(hostFactsCompatibility(null), { status: 'unavailable', supported: false, requiredVersion: 1 });
+  assert.deepEqual(hostFactsCompatibility({ version: 1 }), { status: 'supported', supported: true, requiredVersion: 1, observedVersion: 1 });
+  assert.equal(hostFactsCompatibility({ version: 1, futureOptionalField: true }).supported, true);
+  for (const value of [{}, { version: 2 }, { version: '1' }, [{ version: 1 }], true]) {
+    assert.equal(hostFactsCompatibility(value).status, 'unsupported');
+    assert.equal(hostFactsCompatibility(value).supported, false);
+  }
+  assert.equal(hostFactsCompatibility({ version: 2 }).observedVersion, 2);
+  assert.equal(hostFactsCompatibility({ version: '1' }).observedVersion, null);
+  assert.equal(runtimeCompatibility('999.0.0').knowledge.supported, false, 'A public observation never widens the knowledge schema matrix');
+});
 
 test('knowledge compatibility pins package and schema together without granting material access', () => {
   for (const version of ['0.14.0-alpha.1', '0.14.0-alpha.2', '0.14.0-alpha.3', '0.14.0-alpha.4']) {

@@ -4,7 +4,7 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-import {runtimeCompatibility} from './compatibility.mjs';
+import {hostFactsCompatibility,runtimeCompatibility} from './compatibility.mjs';
 const names=['js-superagent','js-longrun','js-agent-runtime','@larksuiteoapi/node-sdk'];
 export function inspectProject(project) {
   if(!path.isAbsolute(project))throw Error('--project must be an absolute directory');
@@ -31,7 +31,15 @@ export function inspectProject(project) {
     lockfiles:['package-lock.json','pnpm-lock.yaml','yarn.lock','bun.lock','bun.lockb'].filter(f=>fs.existsSync(path.join(root,f))),
     dependencies,runtimeCompatibility:runtimeCompatibility(dependencies.find(item=>item.name==='js-superagent')?.installed?.version),
     longrun: longrunInventory(root,dependencies.find(item=>item.name==='js-longrun')?.installed),
+    hostFacts: hostFactsInventory(dependencies),
     scope:'Read-only installation inventory; does not establish account, executor, material grants or service readiness'};
+}
+function hostFactsInventory(dependencies) {
+  const missingComponents=['js-superagent','js-longrun'].filter(name=>!dependencies.find(item=>item.name===name)?.installed);
+  return {capability:hostFactsCompatibility(),missingComponents,synchronization:'not-observed',
+    nextCheck:missingComponents.length?'Install the components required by the authorized task before checking host-facts integration':
+      'Check hostFactsCapabilities() on the already connected SDK, then observe longrun synchronization; do not initialize a runtime for inventory',
+    scope:'Manifest inventory only; package versions, exports and source text do not establish host-facts compatibility or freshness'};
 }
 function longrunInventory(root,installed) {
   const config=path.join(root,'longrun.config.json');

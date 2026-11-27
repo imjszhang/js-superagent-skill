@@ -4,6 +4,8 @@
 
 确认目标项目、包管理器和已有锁文件。检查 Node、现有依赖、项目运行入口和服务；不要仅因存在旁边源码目录就把它当作已安装包。`inspect.mjs` 只报告安装事实，不能证明账号或后台健康。
 
+接入协调者运行事实时，按[运行事实能力核验](context-facts.md)检查已连接 SDK 的公开 capability 和 longrun 同步结果。安装清单中的 `hostFacts: not-observed` 不表示已支持或已失败；不为诊断初始化运行时。旧 SDK 保留原任务能力，候选接口通过也不代表已正式发布。
+
 已验证组合（2026-11-11）：Node >=22.13；js-superagent 0.14.0-alpha.4；js-longrun 0.1.0-alpha.2；js-agent-runtime 0.2.2；lark-cli 来自官方 `@larksuite/cli`，当时为 1.0.99。superagent alpha.0 存在单工单禁用 managed jobs 与 DSH 配置不一致的问题，不用于新的完整部署。
 
 安装前从 npm registry 查询候选包的 version、engines、peerDependencies、repository，选择兼容的准确版本，核对来源：`imjszhang/js-superagent`、`imjszhang/js-longrun`、`imjszhang/js-agent-runtime`；飞书 CLI 为 `larksuite/cli`。不要仅根据 latest 推断稳定性，首发 alpha 也可能被 npm 标为 latest。
@@ -63,6 +65,7 @@ superagent 与 longrun 各自管理自己的服务。支持 `service` 的 longru
 3. 已有后台的健康、执行器能力与连接状态；网络验证只做当前任务所需检查。
 4. 核对知识加载与实际后台入口，分别报告连接健康和真实业务问答验收。
 5. 隔离 trial 验证业务格式，再按用户授权进行真实执行/卡片测试。见运行维护文档的证据层级。
+6. 使用宿主事实接入的组合按[运行事实验收](context-facts.md)检查无活跃工单的任务概览、在途执行与旧历史、同步故障和权限撤回；保留原业务状态与服务运行意图。
 
 ## 完成后带用户开始使用
 
