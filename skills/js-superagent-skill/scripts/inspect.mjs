@@ -1,35 +1,26 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import {createRequire} from 'node:module';
+import {inspectComponents, componentNames} from './components.mjs';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {hostFactsCompatibility,runtimeCompatibility} from './compatibility.mjs';
-const names=['js-superagent','js-longrun','js-agent-runtime','@larksuiteoapi/node-sdk'];
+const names=componentNames;
 export function inspectProject(project) {
   if(!path.isAbsolute(project))throw Error('--project must be an absolute directory');
   const root=fs.realpathSync(project);
   if(!fs.statSync(root).isDirectory())throw Error('Project is not a directory');
   const manifest=path.join(root,'package.json');
   const pkg=fs.existsSync(manifest)?JSON.parse(fs.readFileSync(manifest,'utf8')):{};
-  const require=createRequire(path.join(root,'__skill_inspect__.cjs'));
+  const components=inspectComponents(root);
   const dependencies=names.map(name=>{
-    let installed=null;
-    // Read package manifests directly: import-only exports may reject require.resolve.
-    for(const directory of require.resolve.paths(name)??[]){
-      const file=path.join(directory,name,'package.json');
-      if(!fs.existsSync(file))continue;
-      const data=JSON.parse(fs.readFileSync(file,'utf8'));
-      if(data.name!==name)continue;
-      installed={version:data.version,location:fs.realpathSync(path.dirname(file)),engines:data.engines??{},peerDependencies:data.peerDependencies??{},
-        publicSubpaths: data.exports && typeof data.exports === 'object' ? Object.keys(data.exports).filter(key=>key.startsWith('./')) : []};
-      break;
-    }
+    const selected=components.components[name];
+    const installed=selected?{...selected,location:selected.packageRoot}:null;
     return {name,declared:pkg.dependencies?.[name]??pkg.devDependencies?.[name]??null,installed};
   });
   return {project:root,node:process.versions.node,packageManager:pkg.packageManager??null,
     lockfiles:['package-lock.json','pnpm-lock.yaml','yarn.lock','bun.lock','bun.lockb'].filter(f=>fs.existsSync(path.join(root,f))),
-    dependencies,runtimeCompatibility:runtimeCompatibility(dependencies.find(item=>item.name==='js-superagent')?.installed?.version),
+    components,dependencies,runtimeCompatibility:runtimeCompatibility(dependencies.find(item=>item.name==='js-superagent')?.installed?.version),
     longrun: longrunInventory(root,dependencies.find(item=>item.name==='js-longrun')?.installed),
     hostFacts: hostFactsInventory(dependencies),
     scope:'Read-only installation inventory; does not establish account, executor, material grants or service readiness'};

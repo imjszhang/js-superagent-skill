@@ -4,7 +4,8 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {supportedRuntimeVersions, assertKnowledgeSchema} from './compatibility.mjs';
+import {assertKnowledgeSchema} from './compatibility.mjs';
+import {resolveComponent, importComponent, componentBin} from './components.mjs';
 
 // This compatibility adapter deliberately targets explicitly verified package layouts.
 const MARKER = 'js-superagent-skill:knowledge';
@@ -17,23 +18,10 @@ const regularFile = file => {
 };
 
 export async function resolveRuntime(projectRoot) {
-  if (!path.isAbsolute(projectRoot)) throw Error('--project must be an absolute directory');
-  const root = fs.realpathSync(projectRoot);
-  if (!fs.statSync(root).isDirectory()) throw Error('Project is not a directory');
-  // Do not resolve a dependency from the skill's own repository.
-  const packageRoot = path.join(root, 'node_modules', 'js-superagent');
-  const manifest = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json'), 'utf8'));
-  if (manifest.name !== 'js-superagent' || !supportedRuntimeVersions.includes(manifest.version)) {
-    throw Error(`Knowledge adapter requires js-superagent ${supportedRuntimeVersions.join(' or ')}; inspect compatibility before upgrading`);
-  }
-  const exported = manifest.exports?.['.']?.import;
-  if (typeof exported !== 'string' || !exported.startsWith('./')) throw Error('Unsupported runtime package entry');
-  const entry = path.resolve(packageRoot, exported);
-  const realPackage = fs.realpathSync(packageRoot);
-  if (!fs.realpathSync(entry).startsWith(realPackage + path.sep)) throw Error('Runtime did not resolve from the target project');
-  const sdk = await import(pathToFileURL(entry).href);
+  const component = resolveComponent(projectRoot, 'js-superagent');
+  const sdk = await importComponent(projectRoot, 'js-superagent');
   if (typeof sdk.projectStateDirectory !== 'function' || typeof sdk.createProjectAgent !== 'function') throw Error('Required runtime interfaces are unavailable');
-  return {sdk, cliPath:path.join(realPackage, 'bin/js-superagent.mjs'), packageRoot:realPackage, version:manifest.version};
+  return {sdk, cliPath:componentBin(component), packageRoot:component.packageRoot, version:component.version, nodeExecutable:component.nodeExecutable};
 }
 
 export function loadKnowledge(directory) {

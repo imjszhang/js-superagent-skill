@@ -1,3 +1,5 @@
+// These fixtures exercise explicit project-local compatibility, independently of host globals.
+process.env.JS_SUPERAGENT_COMPONENT_SOURCE='local';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -5,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { fork } from 'node:child_process';
+import {bindComponents} from '../skills/js-superagent-skill/scripts/components.mjs';
 import { loadKnowledge, syncKnowledge, resolveRuntime } from '../skills/js-superagent-skill/scripts/knowledge.mjs';
 
 const packageDirectory = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE ?? fileURLToPath(new URL('../node_modules/js-superagent', import.meta.url)));
@@ -14,7 +17,7 @@ function sandbox(t) {
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'coordinator-knowledge-')));
   const root = path.join(base, 'project'); fs.mkdirSync(root);
   const old = {};
-  for (const [key, value] of Object.entries({ JS_SUPERAGENT_HOME: path.join(base, 'state'), JS_SUPERAGENT_MACHINE_DIRECTORY: path.join(base, 'machine') })) {
+  for (const [key, value] of Object.entries({ JS_SUPERAGENT_HOME: path.join(base, 'state'), JS_SUPERAGENT_MACHINE_DIRECTORY: path.join(base, 'machine'), JS_SUPERAGENT_SKILL_HOME:path.join(base,'bindings') })) {
     old[key] = process.env[key]; process.env[key] = value;
   }
   t.after(() => {
@@ -161,6 +164,49 @@ test('budget rejection and uninitialized-project inspection do not create or alt
 
 test('startup wrapper synchronizes before native ready IPC and reloads edits on the next start', { timeout: 20000 }, async t => {
   const { root, directory } = await initialized(t);
+  await withAgent(root, app => app.configureExecutor({ driver: 'codex-app-server', executable: process.execPath }, { expectedRevision: 0 }));
+  const wrapper = fileURLToPath(new URL('../skills/js-superagent-skill/scripts/project-agent.mjs', import.meta.url));
+  const before = await status(root);
+  const children = [];
+  t.after(() => { for (const child of children) if (child.exitCode === null) child.kill('SIGKILL'); });
+  async function start() {
+    const child = fork(wrapper, ['--project', root, 'serve'], { env: { ...process.env }, silent: true });
+    children.push(child);
+    let errors = ''; child.stderr.on('data', chunk => { errors += chunk; });
+    child.stdout.resume();
+    const exited = new Promise(resolve => child.once('exit', (code, signal) => resolve({ code, signal })));
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('Wrapper readiness timeout: ' + errors)), 7000);
+      const onExit = code => { clearTimeout(timer); reject(new Error('Wrapper exited before ready: ' + code + ' ' + errors)); };
+      child.once('exit', onExit);
+      child.on('message', message => {
+        if (message.type === 'js-superagent:ready') { clearTimeout(timer); child.off('exit', onExit); resolve(); }
+        if (message.type === 'js-superagent:startup-error') errors += JSON.stringify(message);
+      });
+    });
+    return { child, exited };
+  }
+  write(directory, 'project.md', '# Archive\nFirst startup fact.');
+  let running = await start();
+  let current = await status(root);
+  assert.match(current.assembled.coordinator.text, /First startup fact/);
+  assert.equal(current.assembled.worker.text, before.assembled.worker.text);
+  running.child.kill('SIGTERM'); assert.equal((await running.exited).code, 143);
+  write(directory, 'project.md', '# Archive\nSecond startup fact.');
+  running = await start(); current = await status(root);
+  assert.match(current.assembled.coordinator.text, /Second startup fact/);
+  assert.doesNotMatch(current.assembled.coordinator.text, /First startup fact/);
+  assert.equal(current.assembled.worker.text, before.assembled.worker.text);
+  running.child.kill('SIGTERM'); assert.equal((await running.exited).code, 143);
+});
+
+test('bound global-only wrapper preserves ready IPC and reloads knowledge without local packages', { timeout: 20000 }, async t => {
+  const { base, root, directory } = await initialized(t);
+  const globalRoot=path.join(base,'prefix/lib/node_modules');fs.mkdirSync(globalRoot,{recursive:true});
+  fs.symlinkSync(packageDirectory,path.join(globalRoot,'js-superagent'));
+  bindComponents(root,{source:'global',globalRoots:[globalRoot]});
+  fs.rmSync(path.join(root,'node_modules'),{recursive:true});fs.unlinkSync(path.join(root,'package.json'));
+  assert.deepEqual(fs.readdirSync(root),[]);
   await withAgent(root, app => app.configureExecutor({ driver: 'codex-app-server', executable: process.execPath }, { expectedRevision: 0 }));
   const wrapper = fileURLToPath(new URL('../skills/js-superagent-skill/scripts/project-agent.mjs', import.meta.url));
   const before = await status(root);

@@ -2,27 +2,62 @@
 
 ## 先识别，再安装
 
-确认目标项目、包管理器和已有锁文件。检查 Node、现有依赖、项目运行入口和服务；不要仅因存在旁边源码目录就把它当作已安装包。`inspect.mjs` 只报告安装事实，不能证明账号或后台健康。
+确认目标项目、Node、现有依赖、实际运行入口和服务。新部署默认复用本机兼容的全局组件；已有绑定优先，未迁移的已有服务继续使用项目本地组件。显式选择本地安装仍可用。组件共享不共享项目身份、配置、知识、权限、任务或状态。
 
-接入协调者运行事实时，按[运行事实能力核验](context-facts.md)检查已连接 SDK 的公开 capability 和 longrun 同步结果。安装清单中的 `hostFacts: not-observed` 不表示已支持或已失败；不为诊断初始化运行时。旧 SDK 保留原任务能力，候选接口通过也不代表已正式发布。
-
-历史已验证组合（2026-11-11）：Node >=22.13；js-superagent 0.14.0-alpha.4；js-longrun 0.1.0-alpha.2；js-agent-runtime 0.2.2；lark-cli 来自官方 `@larksuite/cli`，当时为 1.0.99。superagent alpha.0 存在单工单禁用 managed jobs 与 DSH 配置不一致的问题，不用于新的完整部署。
-
-0.7.6 的运行事实接入组合为 js-superagent `0.15.0-alpha.16` 与 js-longrun `0.2.0-alpha.1`；候选构建、正式发布和目标部署分别验收，结果见仓库维护记录。旧开发依赖仍作为回归基线，不能把旧包安装成功当成新协议已就绪。升级已有部署时，先同步兼容 alpha.16 的技能及知识启动包装入口，再恢复使用新运行包的服务；保留知识、材料授权和业务状态。
-
-安装前从 npm registry 查询候选包的 version、engines、peerDependencies、repository，选择兼容的准确版本，核对来源：`imjszhang/js-superagent`、`imjszhang/js-longrun`、`imjszhang/js-agent-runtime`；飞书 CLI 为 `larksuite/cli`。不要仅根据 latest 推断稳定性，首发 alpha 也可能被 npm 标为 latest。
-
-对 npm 项目，上述历史已验证组合的安装示例：
+先运行只读检查；`<skill>` 为技能目录，`<root>` 为项目绝对路径：
 
 ```sh
-npm install --save-exact js-superagent@0.14.0-alpha.4 js-longrun@0.1.0-alpha.2 js-agent-runtime@0.2.2
+node <skill>/scripts/inspect.mjs --project <root>
+node <skill>/scripts/components.mjs --project <root> inspect
 ```
 
-实际由 Agent 执行安装并检查退出状态、package.json 和锁文件。按项目现有包管理器使用对应准确版本命令，不额外生成另一种锁文件。已安装并兼容的组件无需反复安装。没有 package.json 时，确认此目录确为用户指定项目后创建最小清单，不覆盖已有工程。
+检查只读清单，不导入依赖代码、不初始化运行时、不创建组件绑定。区分缺失、版本不兼容、绑定漂移与来源冲突；不要仅因旁边有源码目录或 PATH 中存在命令就判为可用。全局目录通过当前 npm 查询，不能写死 Homebrew、Node 版本管理器或系统路径。记录实际 Node、包根、版本及 CLI/SDK 入口；多个 Node/prefix 时核对使用的是哪一个。
 
-缺失 Node 时按宿主平台与现有管理器安装满足 engines 的版本；不要替换正在使用的系统默认 Node。需要机器级权限而无法继续时，只请求对应步骤。
+接入协调者运行事实时，按[运行事实能力核验](context-facts.md)检查已连接 SDK 的公开 capability 和 longrun 同步结果。安装清单中的 `hostFacts: not-observed` 不表示已支持或已失败；不为诊断初始化运行时。版本与 exports 只证明安装布局，不能代替实际 capability。
 
-飞书 CLI 若已可用则复用；缺失时先查官方安装说明及 engines，再按准确版本安装，例如 npm 管理环境下 `npm install -g @larksuite/cli@<已核对版本>`。若项目不允许全局安装，安装到项目并以项目本地 bin 调用。不要 sudo、改全局前缀或绕过权限来强行安装。
+安装前从 npm registry 查询候选包的 version、engines、peerDependencies、repository，选择兼容的准确版本，核对来源：`imjszhang/js-superagent`、`imjszhang/js-longrun`、`imjszhang/js-agent-runtime`；飞书 CLI 为 `larksuite/cli`。不要仅根据 latest 推断稳定性或最新预发布版，部分 alpha 使用单独的 dist-tag。
+
+仅为目标所需且本机缺失的组件安装一次。以已核对的准确版本替换下方占位值，按需选取参数；已安装组件不得因接入另一个项目被隐式升级：
+
+```sh
+npm install -g js-superagent@<准确版本> js-longrun@<兼容版本>
+# 仅当宿主需要执行适配或飞书连接时：
+npm install -g js-agent-runtime@<准确版本> @larksuiteoapi/node-sdk@<兼容版本>
+```
+
+普通项目无需因此创建 package.json、锁文件或 node_modules。需要项目独立版本时，使用原包管理器精确安装并明确选择 local；不得覆盖已有 manifest 或额外创建另一种锁文件。已安装并兼容的组件无需反复安装。缺少全局安装权限时，不 sudo、不更改系统前缀；使用允许写入的用户级安装位置，或按项目已有约束采用本地安装。
+
+首次部署在正式启动前保存组件绑定：
+
+```sh
+node <skill>/scripts/components.mjs --project <root> bind --source global
+# 明确采用项目版本的例外：
+node <skill>/scripts/components.mjs --project <root> bind --source local
+```
+
+绑定存放在 `~/.js-superagent-skill/projects/<真实项目路径的摘要>/components.json`，前台 CLI 和隔离测试可用 `JS_SUPERAGENT_SKILL_HOME` 指定根目录；当前受管服务不持久传递这个变量，使用非默认根目录时安装服务会明确拒绝，部署后台使用默认绑定根。使用工具生成与校验，不手工写路径编码或改记录制造一致。绑定保存准确 Node 路径/版本、组件包根/版本和清单摘要；后台不依赖交互 shell 的 PATH。已有绑定漂移或不可读时明确拒绝，不静默换到另一份包。绑定只选择程序，不初始化任务、迁移状态或授权执行。
+
+全局安装的 js-longrun 可能仍解析到嵌套的另一份 superagent，飞书 SDK 也可能只装在项目内。必须从选定组件的实际位置核对依赖解析，不能分别看两个 `--version` 就认定同一组合。共享的可选 SDK 需要处于 superagent 可以解析的位置。
+
+缺失 Node 时按宿主平台与现有管理器安装满足所有已选组件 engines 的版本；不要替换正在使用的系统默认 Node。飞书 CLI 已可用则复用；缺失时查官方安装说明和 engines 后，按准确版本安装 `@larksuite/cli`。模型 CLI 与 lark-cli 沿各自配置检测，不把它们的存在当作 SDK 导入成功。
+
+历史已验证组合（2026-11-11）为 superagent 0.14.0-alpha.4、longrun 0.1.0-alpha.2、agent-runtime 0.2.2；它只作为历史基线。0.7.6 的运行事实组合为 superagent 0.15.0-alpha.16 与 longrun 0.2.0-alpha.1；0.7.7 增加 alpha.17 的精确包布局支持。准确兼容矩阵以 `scripts/compatibility.mjs` 为准；开发依赖的旧版本用于回归，不能当作新部署推荐。候选构建、正式发布、协议验证和目标部署分别验收。
+
+## 共享组件与已有项目迁移
+
+1. 读取原服务、Node、包位置、版本、wrapper/参数与运行意图，保存工单、任务、知识、权限和业务状态基线。已有服务使用本地包时，不因技能升级自动改为全局。
+2. 保留宿主业务 wrapper。直接 `import 'js-longrun'` 等 SDK 的宿主必须先改用统一加载入口，示例如下；所有实际使用的公开子路径同样处理，不写死 dist 或 node_modules。不要依赖 NODE_PATH，也不通过安装一份全局 CLI 假装本地 SDK 已迁移。
+
+   ```js
+   import { importComponent } from '<技能相对路径>/scripts/components.mjs';
+   const { plan, probe, run } = await importComponent(projectRoot, 'js-agent-runtime');
+   ```
+
+3. 先验证共享组合及宿主适配，再停止相关服务并证明包装/子进程实际退出，通过一致备份方式保存状态。旧部署从本地切换全局时，通过正式 uninstall/install 重建服务注册，保留环境、凭据引用、路由、定时参数及原状态目录。注册移除不删除业务状态。
+4. 原服务注册移除后，以 `bind --source global --replace` 替换已有绑定；首次绑定省略 `--replace`。不要在旧服务仍运行或仍注册时重绑，不能绕过绑定漂移后直接启动。longrun watcher/定时器与 superagent 分别按各自管理入口恢复，原来停止的服务仍保持停止。
+5. 核对同一项目身份、任务与工单状态、知识、服务入口、Node 和组件版本；验证无项目组件副本时仍可导入、知识检查、宿主查询及后台重启。成功后才移除原本地 js-* 依赖，保留其他业务依赖和锁文件。DSH 的执行路径、依赖修复与冻结会话单独审计，不顺带切换全局版本。
+
+共享目录内的包更新会影响全部使用它的项目。更新前列出绑定到该目录的项目，核对所有服务注册与进程、停止所有受影响写者，再安装、核验和逐项目重绑/恢复；不能只停止当前项目就覆盖全局文件。版本检查可以拒绝漂移，但不能让仍运行的进程免于延迟加载被替换的文件。需要各项目同时使用不同版本时，采用分别保留的用户级安装位置和明确绑定；不要宣称本版会自动管理并行版本或自动协调所有服务升级。回退前还须检查升级后的业务写入，不能只降包或覆盖旧状态。
 
 ## 执行能力与账号
 
@@ -32,7 +67,7 @@ superagent 的 Worker 可以直接使用其原生执行器。根据用户选择�
 
 DSH 的 Node 门槛单独核对，例如 `0.2.2-rc.5` 要求 Node >=24.9，不能由 superagent 自身的 Node >=22.13 推断可用。采用新 DSH 时读[运行维护](operations.md)中的“DSH 执行工具与依赖审计”，检查准确执行路径、适配版本、工具边界和旧会话。`0.7.7` 增加 alpha.17 包布局兼容；具体 DSH 候选的运行验收与发布状态由部署记录给出，不仅据此声明已就绪。
 
-飞书连接还需宿主安装可选 SDK；已验证 `@larksuiteoapi/node-sdk@1.76.0`，升级时核对 superagent 文档。CLI 的应用身份与 superagent 连接的应用/租户/机器人须匹配，不能把“CLI 已登录”当作机器人连接已配置。
+飞书连接还需在所选 superagent 能解析的位置安装可选 SDK；已验证 `@larksuiteoapi/node-sdk@1.76.0`，升级时核对 superagent 文档。CLI 的应用身份与 superagent 连接的应用/租户/机器人须匹配，不能把“CLI 已登录”当作机器人连接已配置。
 
 配置飞书时，执行[部署、升级与恢复前的只读检查](feishu.md)：分别核对应用 bot 与用户 scope，用后台同应用的 bot 身份实际读取目标群主消息和话题历史。只检查 WebSocket、scope 清单或用户身份读取成功不足以完成接入。先核对历史失败、游标及可能积压，再恢复接收；真实 @、断线补收、原话题非 @ 跟进、回复与去重按同文档验收，不增加另一套权限配置或轮询进程。
 
@@ -42,12 +77,12 @@ DSH 的 Node 门槛单独核对，例如 `0.2.2-rc.5` 要求 Node >=24.9，不�
 
 先检查是否已有配置、注册身份和状态。已有项目使用 setup/status/health；只有明确的新部署才运行 `init`。不要用 `init`、`project reinitialize` 或删除数据库来处理升级。
 
-CLI 例子中的 `<root>` 都是目标项目绝对路径；从项目根目录执行，优先本地 bin：
+CLI 例子中的 `<root>` 都是目标项目绝对路径，使用组件绑定与知识包装入口：
 
 ```sh
-./node_modules/.bin/js-superagent --project <root> --help
-./node_modules/.bin/js-superagent --project <root> setup check
-./node_modules/.bin/js-superagent --project <root> service health
+node <skill>/scripts/project-agent.mjs --project <root> --help
+node <skill>/scripts/project-agent.mjs --project <root> setup check
+node <skill>/scripts/project-agent.mjs --project <root> service health
 ```
 
 新工单需要隔离时显式选择 `--workspace auto`；默认 in-place 不能被描述成独立工作区。SDK `.init()` 可能创建或迁移状态，不用它做“无副作用的安装检查”。
@@ -64,7 +99,7 @@ superagent 与 longrun 各自管理自己的服务。支持 `service` 的 longru
 
 ## 验证安装结果
 
-1. 对照锁文件检查安装来源与版本；确认 longrun peer 使用同一份 superagent。
+1. 对照组件绑定和适用的安装记录检查来源、版本与 Node；确认 longrun peer 和飞书 SDK 实际解析到已核对组合。
 2. CLI help/version 和 SDK 导入；无业务副作用。
 3. 已有后台的健康、执行器能力与连接状态；网络验证只做当前任务所需检查。
 4. 核对知识加载与实际后台入口，分别报告连接健康和真实业务问答验收。

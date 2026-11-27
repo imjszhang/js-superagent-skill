@@ -4,7 +4,7 @@
 
 ## 目录与内容
 
-通过目标项目安装的 js-superagent 公共路径接口 `projectStateDirectory(projectRoot)` 确认项目专属运行时目录，在其中使用 `knowledge/`。不要手工拼接项目路径编码，不放进共享用户目录，也不增加 `coordinator/` 层级。
+通过目标项目绑定的 js-superagent 公共路径接口 `projectStateDirectory(projectRoot)` 确认项目专属运行时目录，在其中使用 `knowledge/`。不要手工拼接项目路径编码，不放进共享用户目录，也不增加 `coordinator/` 层级。
 
 ```text
 <项目专属运行时目录>/
@@ -31,20 +31,22 @@
 | 已核对包布局 | 可同步知识的状态格式 |
 | --- | --- |
 | 0.14.0-alpha.1 / alpha.2 / alpha.3 / alpha.4 | schema 14 |
-| 0.15.0-alpha.0 / alpha.1 / alpha.2 / alpha.3 / alpha.4 | schema 14、schema 15 |
+| `scripts/compatibility.mjs` 中逐项列出的 0.15 准确版本 | schema 14、schema 15 |
 
 适配器按准确版本与 schema 配对检查，未知组合明确拒绝。新包兼容旧知识配置不等于已启用材料能力；材料必须按[项目材料与执行环境](materials.md)单独配置。兼容验证可使用构建产物，不代表候选版本已发布到 npm；部署时核对实际来源。检查和知识同步均不承担 schema 迁移，schema 15 由运行包公开升级流程完成。
 
 当前共享 `prompts.knowledge` 同时进入 Worker 与协调者，不能用它做角色隔离。技能脚本把每个 Markdown 编译为独立的逻辑知识条目，合并到 `runtime/coordinator` 提示词的受管区块；保留该角色原有文字、其他提示词及共享知识。Worker 组装结果必须不变。这是技能的兼容接入，不是运行库原生目录加载。
 
-`knowledge.mjs` 通过目标项目已安装的包定位状态目录。只读检查使用该固定版本的 SQLite/PromptRegistry 结构；保存使用公开 `configurePrompts` 修订接口。其他包版本明确拒绝，先适配验证再升级，不猜内部格式。
+`knowledge.mjs` 通过统一组件解析器选定的包定位状态目录，支持全局共享及显式本地绑定。只读检查使用该固定版本的 SQLite/PromptRegistry 结构；保存使用公开 `configurePrompts` 修订接口。其他包版本明确拒绝，先适配验证再升级，不猜内部格式。
+
+全局包改变、Node 更新或本地/全局迁移时，先按[共享组件与已有项目迁移](setup.md)处理绑定和服务注册。知识同步不负责替换绑定，也不会在绑定漂移时回退到另一份运行包。
 
 部署顺序：
 
 1. 确认项目已初始化，读取现有模型、提示词、服务安装参数和运行状态。仅安装技能不初始化项目、不写入知识。
 2. 用公开 `projectStateDirectory(projectRoot)` 获取状态目录，创建 `knowledge/`，根据真实项目材料填写 `project.md`。已有文件保留，不直接把模板说明当成项目事实。
 3. 用下方 `knowledge check` 检查将加载的文件与配置差异。差异返回非零是尚未同步，不是自动获准覆盖。无效文档、超预算或受管区块被手改时先修复；不静默截断。
-4. 将项目自己的启动命令指向安装后稳定位置的 `scripts/project-agent.mjs`。它仍调用目标项目固定的 js-superagent，不下载另一份运行库。已有宿主业务路由不能被绕过：若项目已有自定义启动入口，把同样的 `syncKnowledge(root,{apply:true})` 接入原入口启动前，不用通用入口覆盖业务适配。
+4. 将项目自己的启动命令指向安装后稳定位置的 `scripts/project-agent.mjs`。它仍调用目标项目绑定的准确 js-superagent，不下载另一份运行库；全局共享包与项目知识目录分别定位。已有宿主业务路由不能被绕过：若项目已有自定义启动入口，把同样的 `syncKnowledge(root,{apply:true})` 接入原入口启动前，不用通用入口覆盖业务适配。
 5. macOS 使用此包装入口执行 `service install`，它通过公开 `createServiceManager({cliPath})` 把包装入口登记为实际后台子进程入口。原服务先核对空闲并停止，保留 mode、凭据文件、端口、日志和代理设置，再卸载旧服务定义并重新安装；状态库、工单和历史不删除。原来停止的服务保持停止；原来运行且获准部署的服务恢复运行。
 6. 启动或重启时先同步知识，再在同一进程载入原 CLI，保留其信号处理、就绪回执和心跳。登录启动与异常重启也经过同一入口。同步失败不启动业务；修复后显式重启。安装清单的 `cliPath` 必须指向包装入口，只改 npm 命令不足以接管登录后台。
 

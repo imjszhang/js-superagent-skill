@@ -96,7 +96,7 @@ Skill 指导 Coding Agent 操作；后台的协调者与 Worker 属于 js-supera
 
 ## 状态归属与目录
 
-“项目级”指逻辑归属，不要求所有数据都存放在 Git 仓库。
+“项目级”指逻辑归属，不要求所有数据都存放在 Git 仓库。0.8.0 支持多个项目复用同一份全局运行组件；各项目的知识、任务、权限、数据库和服务仍独立。程序位置由机器上的项目绑定选择，不以项目 node_modules 作为固定前提。
 
 ```text
 js-superagent-skill 仓库
@@ -112,6 +112,8 @@ js-superagent-skill 仓库
 └── 正式成果                     通过业务核验后写入
 
 用户状态目录（默认，可配置）
+├── ~/.js-superagent-skill/projects/<真实项目路径摘要>/
+│   └── 组件来源、版本、Node 与安装清单摘要绑定（不保存业务状态）
 ├── ~/.js-longrun/projects/<项目身份>/
 │   └── longrun 部署、进程归属、心跳、日志和最近检查
 └── ~/.js-superagent/projects/<路径编码>/

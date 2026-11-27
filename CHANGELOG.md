@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0 — 2026-11-28
+
+- Default new deployments to compatible globally installed components, while preserving existing services and explicit project-local bindings.
+- Share manifest-only discovery and public-export loading across installation inspection, coordinator knowledge and the project startup wrapper.
+- Record project-specific machine bindings for Node and component paths, exact versions and manifest digests; reject drift instead of silently changing runtime.
+- Verify the selected longrun peer and optional Feishu SDK resolve consistently, and provide a bound CLI entry for generic longrun use.
+- Document state-preserving local-to-global migration, host SDK adaptations and coordinated upgrades of shared installations.
+- Add isolated regression coverage for global/local selection, binding integrity, dependency closure, project isolation and startup without an interactive PATH.
+
 ## 0.7.7 — 2026-11-27
 
 - Add exact js-superagent 0.15.0-alpha.17 knowledge/schema and material-layout compatibility; reject unknown alpha.18.
