@@ -6,11 +6,13 @@
 
 接入协调者运行事实时，按[运行事实能力核验](context-facts.md)检查已连接 SDK 的公开 capability 和 longrun 同步结果。安装清单中的 `hostFacts: not-observed` 不表示已支持或已失败；不为诊断初始化运行时。旧 SDK 保留原任务能力，候选接口通过也不代表已正式发布。
 
-已验证组合（2026-11-11）：Node >=22.13；js-superagent 0.14.0-alpha.4；js-longrun 0.1.0-alpha.2；js-agent-runtime 0.2.2；lark-cli 来自官方 `@larksuite/cli`，当时为 1.0.99。superagent alpha.0 存在单工单禁用 managed jobs 与 DSH 配置不一致的问题，不用于新的完整部署。
+历史已验证组合（2026-11-11）：Node >=22.13；js-superagent 0.14.0-alpha.4；js-longrun 0.1.0-alpha.2；js-agent-runtime 0.2.2；lark-cli 来自官方 `@larksuite/cli`，当时为 1.0.99。superagent alpha.0 存在单工单禁用 managed jobs 与 DSH 配置不一致的问题，不用于新的完整部署。
+
+0.7.6 的运行事实接入组合为 js-superagent `0.15.0-alpha.16` 与 js-longrun `0.2.0-alpha.1`；候选构建、正式发布和目标部署分别验收，结果见仓库维护记录。旧开发依赖仍作为回归基线，不能把旧包安装成功当成新协议已就绪。升级已有部署时，先同步兼容 alpha.16 的技能及知识启动包装入口，再恢复使用新运行包的服务；保留知识、材料授权和业务状态。
 
 安装前从 npm registry 查询候选包的 version、engines、peerDependencies、repository，选择兼容的准确版本，核对来源：`imjszhang/js-superagent`、`imjszhang/js-longrun`、`imjszhang/js-agent-runtime`；飞书 CLI 为 `larksuite/cli`。不要仅根据 latest 推断稳定性，首发 alpha 也可能被 npm 标为 latest。
 
-对 npm 项目，已验证组合的安装示例：
+对 npm 项目，上述历史已验证组合的安装示例：
 
 ```sh
 npm install --save-exact js-superagent@0.14.0-alpha.4 js-longrun@0.1.0-alpha.2 js-agent-runtime@0.2.2
@@ -48,7 +50,7 @@ CLI 例子中的 `<root>` 都是目标项目绝对路径；从项目根目录执
 
 新工单需要隔离时显式选择 `--workspace auto`；默认 in-place 不能被描述成独立工作区。SDK `.init()` 可能创建或迁移状态，不用它做“无副作用的安装检查”。
 
-需要调查当前项目含未提交文件时，按[项目材料与执行环境](materials.md)配置受控材料入口。`auto` 的 Git worktree 内容来自提交，不能用它证明源项目实时情况。本适配器支持 js-superagent 0.15.0-alpha.0、0.15.0-alpha.1、0.15.0-alpha.2、0.15.0-alpha.3、0.15.0-alpha.4、0.15.0-alpha.5、0.15.0-alpha.6、0.15.0-alpha.7、0.15.0-alpha.10、0.15.0-alpha.11、0.15.0-alpha.12、0.15.0-alpha.13、0.15.0-alpha.14、0.15.0-alpha.15 的材料包布局，材料合同使用 schema 15；部署前核对实际发布及公开 capability，不因技能升级自动替换上面的已部署组合。执行目录、材料来源、协调者知识分别验收。新增飞书群按[群接入检查](feishu.md)核对接收、准入、材料读取者与输出目的地，不能仅凭机器人已入群完成部署。
+需要调查当前项目含未提交文件时，按[项目材料与执行环境](materials.md)配置受控材料入口。`auto` 的 Git worktree 内容来自提交，不能用它证明源项目实时情况。本适配器支持 js-superagent 0.15.0-alpha.0、0.15.0-alpha.1、0.15.0-alpha.2、0.15.0-alpha.3、0.15.0-alpha.4、0.15.0-alpha.5、0.15.0-alpha.6、0.15.0-alpha.7、0.15.0-alpha.10、0.15.0-alpha.11、0.15.0-alpha.12、0.15.0-alpha.13、0.15.0-alpha.14、0.15.0-alpha.15、0.15.0-alpha.16 的材料包布局，材料合同使用 schema 15；部署前核对实际发布及公开 capability，不因技能升级自动替换上面的已部署组合。执行目录、材料来源、协调者知识分别验收。新增飞书群按[群接入检查](feishu.md)核对接收、准入、材料读取者与输出目的地，不能仅凭机器人已入群完成部署。
 
 配置接口有 revision 参数时，先读当前设置再按版本更新。启用 managed jobs 需要宿主提供可信 profile/工具目录；单工单限制只能收紧项目能力。
 

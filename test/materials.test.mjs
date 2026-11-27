@@ -21,7 +21,7 @@ test('material deployment sample starts with one local read-only source and no p
 test('candidate package configures material grants publicly and preserves coordinator-only knowledge at schema 15', { skip: !process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE }, async t => {
   const candidate = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE);
   const manifest = JSON.parse(fs.readFileSync(path.join(candidate, 'package.json'), 'utf8'));
-  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
+  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
   const sdk = await import(pathToFileURL(path.resolve(candidate, manifest.exports['.'].import)).href);
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'skill-materials-'))), root = path.join(base, 'project');
   fs.mkdirSync(path.join(root, 'node_modules'), { recursive: true });
@@ -59,7 +59,7 @@ test('candidate package configures material grants publicly and preserves coordi
 test('installed material contract rejects selected grants in supported enforcement builds and preserves unselected ordinary tasks', { skip: !process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE }, async t => {
   const candidate = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE);
   const manifest = JSON.parse(fs.readFileSync(path.join(candidate, 'package.json'), 'utf8'));
-  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15'].includes(manifest.version));
+  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16'].includes(manifest.version));
   const sdk = await import(pathToFileURL(path.resolve(candidate, manifest.exports['.'].import)).href);
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'skill-material-denial-'))), root = path.join(base, 'project');
   fs.mkdirSync(root);
@@ -78,7 +78,7 @@ test('installed material contract rejects selected grants in supported enforceme
       const before = app.list().length;
       assert.throws(() => app.submit({ text: 'inspect selected source', materials: settings.defaults }), { code });
       assert.equal(app.list().length, before, 'An explicit denied grant creates no ticket');
-      if (['0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15'].includes(manifest.version)) {
+      if (['0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16'].includes(manifest.version)) {
         assert.throws(() => app.submit({ text: 'inspect default source' }), { code });
         assert.equal(app.list().length, before, 'A denied default creates no replacement ordinary ticket');
       } else {

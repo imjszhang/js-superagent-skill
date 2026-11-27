@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.7.6 — 2026-11-27
 
 - Add a maintenance guide for project task overviews, ticket business history and current execution, preserving component ownership, observation times and unknown historical attribution.
 - Keep installation inspection manifest-only while reporting missing host-facts components and unobserved capability/synchronization; classify explicitly obtained public capability results separately from the knowledge schema matrix.
 - Cover old SDKs, synchronization diagnostics, final-query failure receipts, access revocation and state-preserving upgrade acceptance without adding services or copying live progress into knowledge.
+- Add exact js-superagent 0.15.0-alpha.16 compatibility for knowledge schema 14/15 and material package layout, reject unknown alpha.17, and preserve the older development baseline.
+- Document the js-longrun 0.2.0-alpha.1 integration combination, upgrade ordering and final-query receipt wording without implying npm publication or live-channel validation.
 
 ## 0.7.5 — 2026-11-25
 
