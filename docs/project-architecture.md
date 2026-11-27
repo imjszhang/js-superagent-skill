@@ -8,6 +8,8 @@
 
 材料与执行环境扩展的部署合同见[项目材料与执行环境](../skills/js-superagent-skill/references/materials.md)。它延续既有工单/Assignment：协调者保存原请求与路由，Worker 判断技术步骤，宿主核验材料授权、执行 generation、验证与输出；skill 通过公开配置接入，longrun 保持冻结输入及成果结算所有权。knowledge 仍只供协调者理解项目，不变成授权库或实时材料。
 
+运行事实接入见[协调者的运行事实](../skills/js-superagent-skill/references/context-facts.md)：longrun 生成项目任务概览与工单业务历史，superagent 提供当前执行观察并按原有权限装配上下文。投影可重建，结算权威仍在 longrun；同步失败与业务失败分别报告。没有活跃工单时，项目仍可能有冷却或暂停中的长期任务。该接入按实际公开 capability 验证，不由版本号、技能安装或知识文件推断已生效。
+
 ## Project Agent 的定位
 
 本项目用 Project Agent 描述一种以项目为中心的工作方式：相关输入、规则、长期任务和成果各有归属，执行跨越多次会话，人工决定与历史持续保留。这是产品服务范围的定义，不是一个新增模型或独立的第五个运行包。

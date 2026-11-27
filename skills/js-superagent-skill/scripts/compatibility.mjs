@@ -20,6 +20,17 @@ const layouts = Object.freeze({
   '0.15.0-alpha.15': [14, 15],
 });
 export const supportedRuntimeVersions = Object.freeze(Object.keys(layouts));
+
+// Classify an observation supplied by an existing runtime or an isolated test.
+// This helper deliberately neither imports a runtime nor infers capability from a version.
+export function hostFactsCompatibility(capabilities) {
+  if (capabilities === undefined) return { status: 'not-observed', supported: null, requiredVersion: 1 };
+  if (capabilities === null) return { status: 'unavailable', supported: false, requiredVersion: 1 };
+  const version = typeof capabilities === 'object' && !Array.isArray(capabilities) ? capabilities.version : undefined;
+  return { status: version === 1 ? 'supported' : 'unsupported', supported: version === 1,
+    requiredVersion: 1, observedVersion: Number.isSafeInteger(version) ? version : null };
+}
+
 export function runtimeCompatibility(version) {
   const schemas = Object.hasOwn(layouts, version) ? layouts[version] : undefined;
   return { knowledge: schemas ? { supported: true, schemas: [...schemas] } : { supported: false, schemas: [] },

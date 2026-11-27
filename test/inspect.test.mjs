@@ -6,6 +6,8 @@ function temporary(t){const p=fs.mkdtempSync(path.join(os.tmpdir(),'skill-inspec
 test('inspection of an empty project creates no config, package or state',t=>{
   const root=temporary(t);const result=inspectProject(root);
   assert.deepEqual(fs.readdirSync(root),[]);assert.ok(result.dependencies.every(x=>x.installed===null&&x.declared===null));
+  assert.deepEqual(result.hostFacts.missingComponents,['js-superagent','js-longrun']);
+  assert.equal(result.hostFacts.capability.status,'not-observed');assert.equal(result.hostFacts.capability.supported,null);
 });
 test('reports installed and declared versions without executing dependency code or reading credentials',t=>{
   const root=temporary(t),dir=path.join(root,'node_modules/js-superagent');fs.mkdirSync(dir,{recursive:true});
@@ -51,4 +53,17 @@ test('longrun inventory does not follow a configuration symlink or assume servic
   fs.symlinkSync(path.join(external,'secret.json'),path.join(root,'longrun.config.json'));
   const result=inspectProject(root);assert.ok(result.longrun.configuration.error);assert.equal(result.longrun.managementExport,null);
   assert.ok(!JSON.stringify(result).includes('private-location'));assert.equal(result.longrun.service,'not-observed');
+});
+test('host-facts inventory never derives live compatibility or synchronization from package contents',t=>{
+  const root=temporary(t);
+  for(const name of ['js-superagent','js-longrun']){
+    const dir=path.join(root,'node_modules',name);fs.mkdirSync(dir,{recursive:true});
+    fs.writeFileSync(path.join(dir,'package.json'),JSON.stringify({name,version:'999.0.0',type:'module',exports:{'.':'./index.mjs','./host-facts':'./index.mjs'}}));
+    fs.writeFileSync(path.join(dir,'index.mjs'),'export function hostFactsCapabilities(){return {version:1}}; throw new Error("Inventory must not import runtime code")');
+  }
+  const before=fs.readdirSync(root,{recursive:true});const result=inspectProject(root);
+  assert.deepEqual(result.hostFacts.missingComponents,[]);
+  assert.deepEqual(result.hostFacts.capability,{status:'not-observed',supported:null,requiredVersion:1});
+  assert.equal(result.hostFacts.synchronization,'not-observed');
+  assert.deepEqual(fs.readdirSync(root,{recursive:true}),before);
 });

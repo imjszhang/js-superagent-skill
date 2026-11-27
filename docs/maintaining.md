@@ -37,6 +37,8 @@ README 和 docs 是仓库说明，不随技能安装。仅修改这些文件时�
 
 开发环境运行 `npm ci --ignore-scripts && npm run check`。开发依赖固定到公开 js-longrun/js-superagent 版本，用隔离目录检验示例创建、只读计划、状态控制、冻结定义和多任务隔离；这些依赖和测试不随技能安装。独立 Agent 场景评审见 [行为验证](behavioral-validation.md)。离线验证不能代替真实模型、飞书或后台验收。
 
+宿主事实的维护合同在可安装的 [运行事实指引](../skills/js-superagent-skill/references/context-facts.md)。安装检查始终只读清单，`hostFacts` 报告缺失组件与尚未观察的能力/同步；不导入依赖或初始化 SDK。`hostFactsCompatibility` 只分类已取得的公开协议观察，不放宽 knowledge 的准确版本/schema 矩阵。测试覆盖缺失依赖、伪造导出和未来版本不误报支持、有效/未知 capability 区分，以及安装后相对文档链接。对候选运行包的发布、目标项目接入和真实消息验收分别留证。
+
 0.4.0 新增首次使用与部署交接，维护源为技能内 `references/onboarding.md`，入口、安装、任务与运行维护流程引用同一份规则。安装指令要求显式加载该指引；复制技能文件本身不会自动触发引导。升级已有项目时沿用任务和进度，不重新初始化，也不升级运行组件。
 
 0.5.0 增加协调者专属知识目录与启动包装入口。兼容工具固定验证 js-superagent 0.14.0-alpha.1：只读预演依赖该版本内部 PromptRegistry/SQLite，写入使用公开接口，服务通过公开 cliPath 安装。改变支持版本时重跑知识隔离、文件增删、冲突和启动回执测试。真实宿主知识与凭据不进入技能仓库。
