@@ -24,7 +24,34 @@
 
 使用 `types/design` 和已安装包定义核对可用字段。当前内置任务 completion 只有 `until-disabled`：任务持续到停用；目标达成、截止日期自动结束等需求需要宿主支持，不能编造字段或声称已实现。通用业务结算/失败外发通知目前未实现，不能承诺每次入库自动发消息；Worker 完成通知不是业务采纳通知。
 
-内置 `local-worker@1` 无受管子任务，相关限额为 0。`fixed-interval` 表示从带时区 anchor 起每隔指定小时，不等于任意 cron/每月规则；`after-settlement` 则从结算后等待。内置执行时长上限当前为 60 分钟。用户要求超出能力时保留需求并明确需要适配，不能静默缩小目标。
+内置 `local-worker@1` 无受管子任务，相关限额为 0。`fixed-interval` 从带时区 anchor 起按固定时长计算下一次到期，结算时跳过已错过的时间槽；`after-settlement` 从结算后开始等待。内置执行时长上限当前为 60 分钟。用户要求超出能力时保留需求并明确需要适配，不能静默缩小目标。
+
+### 分钟间隔与组件兼容
+
+支持分钟间隔的 js-longrun 提供以下字段。分钟值为 5–5256000 的整数，5 分钟是下限，7、15、30 分钟等值也有效。
+
+| trigger.kind | 分钟字段 | 兼容的小时字段 |
+|---|---|---|
+| `after-settlement` | `minIntervalMinutes` | `minIntervalHours`，整数 1–87600 |
+| `fixed-interval` | `intervalMinutes` | `intervalHours`，整数 1–87600 |
+
+每行的分钟和小时字段必须恰好提供一个。将小时定义改为分钟时，删除对应小时字段并增加任务 revision；历史冻结定义仍由组件按原单位结算。默认等待 72 小时可表示为 `minIntervalMinutes:4320`。
+
+先用项目绑定组件的公开 `js-longrun/definitions` 中 `validateDefinition` 核验完整候选定义。已发布的 `0.2.0-alpha.3` 及更早版本只接受小时字段；使用分钟字段需要先按安装与升级流程选择包含此能力的版本。技能更新本身不会升级运行包。现有每周示例保留小时字段，可继续用于旧组件。
+
+例如，每 5 分钟到期的任务使用以下 trigger，anchor 和时区按实际任务填写：
+
+```json
+{"kind":"fixed-interval","intervalMinutes":5,"anchor":"2027-01-04T09:00:00+08:00","timezone":"Asia/Shanghai"}
+```
+
+结算后等待半小时则使用：
+
+```json
+{"kind":"after-settlement","minIntervalMinutes":30,"timezone":"Asia/Shanghai"}
+```
+
+同时核对后台检查间隔和 `limits.weeklyRuns`。5 分钟任务需将定时检查设为 `--interval-seconds 300` 或更短的受支持值，部署方法见[后台管理](longrun-service.md)。运行仍受活跃回合、审核、暂停和每周额度门控；默认每周 4 轮，可配置上限为 1000 轮，连续每 5 分钟运行一周需要 2016 轮，超出现有额度上限。休眠、执行耗时和检查时刻会影响实际开始时间。
 
 ## 3. 创建草稿并验证计划
 

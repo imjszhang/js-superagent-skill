@@ -30,6 +30,8 @@
 
 longrun 管理一个常驻 `watch` 和一个兜底 `tick` 定时入口；二者沿用同一个项目业务 wrapper。默认每小时检查，调整检查频率不修改各任务自身的冷却和额度。不要把 longrun 塞进 superagent 的 service manager，也不要另开飞书连接或消息消费者。
 
+任务的分钟字段见[任务设计](tasks.md)。部署短间隔任务时，将检查间隔设为项目内最短任务间隔或更短的受支持值。例如，5 分钟任务使用 `--interval-seconds 300`，30 分钟任务可使用 `1800`。保留默认每小时检查会延迟这些任务。多个任务仍共用同一组后台入口；已有服务调整参数时，按下面的切换流程停止并重新安装原 wrapper，保留原任务和启动意图。
+
 macOS 登录后台服务通过 longrun 的 `service install/start/stop/restart/status/health/logs/uninstall` 管理；其他平台按已安装版本实际能力使用前台或宿主进程管理器，不声称已支持同等系统服务。
 
 操作语义：
@@ -50,6 +52,8 @@ node <wrapper> service start
 node <wrapper> service status
 node <wrapper> service health
 ```
+
+上例按小时检查。部署已授权的 5 分钟任务时，将安装命令中的 `--interval-seconds 3600` 替换为 `--interval-seconds 300`，并验证任务定义、运行额度和后台保存的 `intervalSeconds`。首次验收等待系统定时器实际唤起，检查开轮、结算和下一次到期时间。
 
 `--runtime-home <absolute-directory>` 是 service 命令的本机目录选项；后续操作沿用已保存绑定，不在任务定义中设置它。安装先保存参数；启动失败时检查结构化原因，不重复安装覆盖归属记录。
 
