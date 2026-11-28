@@ -43,7 +43,7 @@ node <skill>/scripts/components.mjs --project <root> bind --source local
 
 缺失 Node 时按宿主平台与现有管理器安装满足所有已选组件 engines 的版本；不要替换正在使用的系统默认 Node。飞书 CLI 已可用则复用；缺失时查官方安装说明和 engines 后，按准确版本安装 `@larksuite/cli`。模型 CLI 与 lark-cli 沿各自配置检测，不把它们的存在当作 SDK 导入成功。
 
-历史已验证组合（2026-11-11）为 superagent 0.14.0-alpha.4、longrun 0.1.0-alpha.2、agent-runtime 0.2.2；它只作为历史基线。0.7.6 的运行事实组合为 superagent 0.15.0-alpha.16 与 longrun 0.2.0-alpha.1；0.7.7 增加 alpha.17 的精确包布局支持。准确兼容矩阵以 `scripts/compatibility.mjs` 为准；开发依赖的旧版本用于回归，不能当作新部署推荐。候选构建、正式发布、协议验证和目标部署分别验收。
+历史已验证组合（2026-11-11）为 superagent 0.14.0-alpha.4、longrun 0.1.0-alpha.2、agent-runtime 0.2.2；它只作为历史基线。0.7.6 的运行事实组合为 superagent 0.15.0-alpha.16 与 longrun 0.2.0-alpha.1；0.7.7 增加 alpha.17 的精确包布局支持。0.8.1 增加 alpha.18 的精确布局支持及绑定锁崩溃恢复，部署组合核对 longrun 0.2.0-alpha.3。准确兼容矩阵以 `scripts/compatibility.mjs` 为准；开发依赖的旧版本用于回归，不能当作新部署推荐。候选构建、正式发布、协议验证和目标部署分别验收。
 
 ## 共享组件与已有项目迁移
 
