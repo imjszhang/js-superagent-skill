@@ -113,3 +113,20 @@ test('concurrent binding operation refuses to overwrite an existing lock or bind
   fs.rmdirSync(file+'.lock');bindComponents(f.project,f.options);const before=fs.readFileSync(file);
   assert.throws(()=>bindComponents(f.project,f.options),/already bound/);assert.deepEqual(fs.readFileSync(file),before);
 });
+
+test('component discovery and persisted binding are independent of hostname changes or lookup failure', async t => {
+  const f=fixture(t);pkg(f.global,'js-superagent');
+  const original=os.hostname;
+  try {
+    os.hostname=()=> 'initial-host';
+    bindComponents(f.project,f.options);
+    const before=fs.readFileSync(componentBindingPath(f.project,f.options));
+    for(const host of [()=> 'renamed-host',()=> {throw Error('hostname unavailable');}]) {
+      os.hostname=host;
+      assert.equal(inspectComponents(f.project,f.options).bound,true);
+      assert.equal(resolveComponent(f.project,'js-superagent',f.options).source,'global');
+      assert.ok(await importComponent(f.project,'js-superagent',f.options));
+      assert.deepEqual(fs.readFileSync(componentBindingPath(f.project,f.options)),before);
+    }
+  } finally {os.hostname=original;}
+});

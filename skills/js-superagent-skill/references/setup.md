@@ -37,6 +37,8 @@ node <skill>/scripts/components.mjs --project <root> bind --source local
 
 绑定存放在 `~/.js-superagent-skill/projects/<真实项目路径的摘要>/components.json`，前台 CLI 和隔离测试可用 `JS_SUPERAGENT_SKILL_HOME` 指定根目录；当前受管服务不持久传递这个变量，使用非默认根目录时安装服务会明确拒绝，部署后台使用默认绑定根。使用工具生成与校验，不手工写路径编码或改记录制造一致。绑定保存准确 Node 路径/版本、组件包根/版本和清单摘要；后台不依赖交互 shell 的 PATH。已有绑定漂移或不可读时明确拒绝，不静默换到另一份包。绑定只选择程序，不初始化任务、迁移状态或授权执行。
 
+新版绑定写入使用 SQLite 系统锁，进程退出或重启后自动释放，不以主机名或 PID 判断锁是否存活。`components.json.lock` 是持久的协议标记，不是正在运行的证明，不要删除；它同时阻止旧版目录锁写入器混入。升级后的绑定写入必须继续使用新版技能。遇到旧版遗留的 `.lock` 目录时仍保守拒绝，需核实原写入者，不自动清除未知目录。
+
 全局安装的 js-longrun 可能仍解析到嵌套的另一份 superagent，飞书 SDK 也可能只装在项目内。必须从选定组件的实际位置核对依赖解析，不能分别看两个 `--version` 就认定同一组合。共享的可选 SDK 需要处于 superagent 可以解析的位置。
 
 缺失 Node 时按宿主平台与现有管理器安装满足所有已选组件 engines 的版本；不要替换正在使用的系统默认 Node。飞书 CLI 已可用则复用；缺失时查官方安装说明和 engines 后，按准确版本安装 `@larksuite/cli`。模型 CLI 与 lark-cli 沿各自配置检测，不把它们的存在当作 SDK 导入成功。
