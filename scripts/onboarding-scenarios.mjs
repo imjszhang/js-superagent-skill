@@ -44,14 +44,14 @@ export async function createScenario(name) {
   fs.writeFileSync(path.join(project, 'README.md'), '# Fictional garden club\nEntirely synthetic training data. Maintain local notes only. No real people, accounts or services.\n');
   fs.cpSync(new URL('../skills/js-superagent-skill/', import.meta.url), path.join(root, 'skill'), { recursive: true, dereference: false });
   write(path.join(root, 'fixture.json'), { kind: 'synthetic-onboarding', scenario: name, simulated: true, ...scenarios[name].observations });
-  if (name === 'existing-tasks' || name === 'runtime-upgrade-plan') {
+  if (['existing-tasks', 'runtime-upgrade-plan', 'feishu-app-conflict'].includes(name)) {
     for (const id of ['garden-weekly-report', 'garden-candidate-review']) {
       const definition = defaultDefinition(id, id.endsWith('review') ? 'review-items@1' : 'change-report@1');
       definition.inputs = ['inputs/notes.md']; definition.trigger.minIntervalHours = 168;
       await createTask({ root: project, id, definition, brief: `Synthetic garden club ${id.endsWith('review') ? 'candidate review' : 'weekly report'}; use only inputs/notes.md.`, now });
       if (id.endsWith('review')) {
         await enableTask({ root: project, id, reason: 'Synthetic past authorization; no service or worker was started', now });
-        if(name==='runtime-upgrade-plan')await startRun({root:project,id,now,client:{submit:async()=> 'synthetic-garden-review-ticket'}});
+        if(['runtime-upgrade-plan', 'feishu-app-conflict'].includes(name))await startRun({root:project,id,now,client:{submit:async()=> 'synthetic-garden-review-ticket'}});
         await pauseTask({ root: project, id, reason: 'Synthetic user pause; retain this task', now });
       }
     }

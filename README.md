@@ -171,7 +171,7 @@ Project Agent 是这些组件在你的项目中的组合。**项目保存业务�
 | 执行适配 | 按需要调用具体的 Agent 工具 | [js-agent-runtime](https://github.com/imjszhang/js-agent-runtime) |
 | 飞书接入 | 配置账号、检查权限和排查飞书问题 | [lark-cli](https://github.com/larksuite/cli) |
 
-js-agent-runtime 按需使用。日常卡片和回答由 js-superagent 的飞书通道处理；lark-cli 用于接入与诊断。运行包可以全局共享，后台仍按项目分别部署。组件路径、版本和 Node 记录在本机的项目绑定中；全局更新前须核对并停止所有受影响服务，避免运行中混用新旧文件。直接导入 SDK 的既有项目还需迁移加载入口，不能仅删除本地依赖。[共享安装与迁移 →](skills/js-superagent-skill/references/setup.md#共享组件与已有项目迁移)
+js-agent-runtime 按需使用。日常卡片和回答由 js-superagent 的飞书通道处理；lark-cli 用于接入与诊断。运行包可以全局共享，后台仍按项目分别部署；Lark/飞书采用一个项目一个 App，同一项目可配置多个群，跨项目不共用 App。接入前核对应用归属，具体保护能力与迁移边界见[飞书接入](skills/js-superagent-skill/references/feishu.md)。组件路径、版本和 Node 记录在本机的项目绑定中；全局更新前须核对并停止所有受影响服务，避免运行中混用新旧文件。直接导入 SDK 的既有项目还需迁移加载入口，不能仅删除本地依赖。[共享安装与迁移 →](skills/js-superagent-skill/references/setup.md#共享组件与已有项目迁移)
 
 开发者可进一步阅读[组件架构图](docs/project-architecture.md#组件架构图)、[审核到结果保存的时序图](docs/project-architecture.md#审核结算时序图)和[状态归属说明](docs/project-architecture.md#状态归属与目录)。
 
@@ -184,7 +184,7 @@ js-agent-runtime 按需使用。日常卡片和回答由 js-superagent 的飞书
 - **持续工作有规则。** 任务按配置和授权运行，不会自动替项目决定所有新目标。暂停后续运行与取消正在执行的工作是不同操作。
 - **人的决定会被保留。** “稍后”项可显式重审；系统不会替你作出审核决定，也不会因此自动对外发布。
 - **完成还要核对。** 审核提交后，任务继续执行；结果经过检查才写入项目。状态变化触发及时收集，定时检查作兜底。
-- **仍需按项目验收。** 本分支技能版本为 `0.8.1`；可安装发布版本以仓库 Tags / Releases 为准，相关运行包仍包含 alpha 版本。已有测试不代表你的账号、工具和业务流程已经接通。
+- **仍需按项目验收。** 本分支技能版本为 `0.8.2`；可安装发布版本以仓库 Tags / Releases 为准，相关运行包仍包含 alpha 版本。已有测试不代表你的账号、工具和业务流程已经接通。
 
 ## 文档与参与
 
