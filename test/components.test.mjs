@@ -18,6 +18,28 @@ function pkg(directory,name,version='0.15.0-alpha.17',options={}) {
   fs.writeFileSync(path.join(root,'feature.mjs'),'export const feature=true;');
   fs.writeFileSync(path.join(root,'cli.mjs'),'console.log("fixture");');return root;
 }
+test('npm-run local PATH bins are not global components ahead of the project fallback',t=>{
+  const f=fixture(t), local=pkg(path.join(f.project,'node_modules'),'js-superagent','0.15.0-alpha.18');
+  const foreignModules=path.join(f.base,'another-project/node_modules');
+  const foreign=pkg(foreignModules,'js-superagent','0.14.0-alpha.1');
+  const localBin=path.join(foreignModules,'.bin'),npmBin=path.join(f.base,'npm-bin');
+  fs.mkdirSync(localBin);fs.mkdirSync(npmBin);
+  fs.symlinkSync(path.join(foreign,'cli.mjs'),path.join(localBin,'js-superagent'));
+  fs.writeFileSync(path.join(npmBin,'npm'),`#!${process.execPath}\nprocess.stdout.write(${JSON.stringify(f.global)});\n`,{mode:0o700});
+  const alias=path.join(f.base,'local-bin-alias');fs.symlinkSync(localBin,alias,'dir');
+  const previous=process.env.PATH;process.env.PATH=[npmBin,localBin+'/../.bin',alias].join(path.delimiter);
+  try {
+    const selected=resolveComponent(f.project,'js-superagent',{source:'auto',bindingHome:f.options.bindingHome});
+    assert.equal(selected.source,'local');assert.equal(selected.packageRoot,local);assert.equal(selected.version,'0.15.0-alpha.18');
+    assert.throws(()=>resolveComponent(f.project,'js-superagent',{source:'global',bindingHome:f.options.bindingHome}),/Component not installed/);
+    const global=pkg(path.join(f.base,'other-prefix/lib/node_modules'),'js-superagent');
+    const globalBin=path.join(f.base,'other-prefix/bin');fs.mkdirSync(globalBin);
+    fs.symlinkSync(path.join(global,'cli.mjs'),path.join(globalBin,'js-superagent'));
+    process.env.PATH+=path.delimiter+globalBin;
+    const discovered=resolveComponent(f.project,'js-superagent',{source:'auto',bindingHome:f.options.bindingHome});
+    assert.equal(discovered.source,'global');assert.equal(discovered.packageRoot,global);
+  } finally {if(previous===undefined)delete process.env.PATH;else process.env.PATH=previous;}
+});
 test('global-only project without package.json resolves imports and wildcard public exports without project writes',async t=>{
   const f=fixture(t);const root=pkg(f.global,'js-superagent');
   assert.equal(inspectComponents(f.project,f.options).components['js-superagent'].source,'global');

@@ -4,6 +4,7 @@
 
 - Use an OS-backed component binding lock so crashed or rebooted writers cannot leave a new binding operation permanently blocked; retain a persistent protocol marker to exclude incompatible legacy writers.
 - Verify global component discovery, SDK loading and existing bindings are unaffected by hostname changes or unavailable hostname diagnostics.
+- Exclude npm-run project-local PATH bins from global discovery and assert candidate compatibility tests use the exact selected runtime.
 - Document stable process identity across all runtime claims and conservative recovery of ambiguous legacy records.
 - Add exact js-superagent 0.15.0-alpha.18 layout compatibility, with isolated knowledge, material and wrapper regressions against the published candidate.
 - Validate the deployment combination with js-longrun 0.2.0-alpha.3; preserve project identities, knowledge, grants, tasks and service intent.

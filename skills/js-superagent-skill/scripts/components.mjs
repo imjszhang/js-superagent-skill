@@ -62,6 +62,10 @@ function globalDirectories(options) {
   // A PATH executable may belong to another Node prefix. Inspect its real package;
   // do not trust the executable name or run package code to identify it.
   for(const directory of (process.env.PATH??'').split(path.delimiter).filter(path.isAbsolute)) {
+    // npm run injects project-local bins into PATH; they are not another global
+    // prefix and must not override the selected project's own local fallback.
+    let actualDirectory;try {actualDirectory=fs.realpathSync(directory);}catch {continue;}
+    if([path.resolve(directory),actualDirectory].some(p=>path.basename(p)==='.bin'&&path.basename(path.dirname(p))==='node_modules'))continue;
     for(const name of ['js-superagent','js-longrun']) {
       const bin=path.join(directory,name); if(!fs.existsSync(bin))continue;
       let at=path.dirname(fs.realpathSync(bin));

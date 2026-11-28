@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { syncKnowledge } from '../skills/js-superagent-skill/scripts/knowledge.mjs';
+import { syncKnowledge, resolveRuntime } from '../skills/js-superagent-skill/scripts/knowledge.mjs';
 
 const example = JSON.parse(fs.readFileSync(new URL('../skills/js-superagent-skill/assets/project-materials.example.json', import.meta.url), 'utf8'));
 test('material deployment sample starts with one local read-only source and no preparation or apply grant', () => {
@@ -27,7 +27,7 @@ test('candidate package configures material grants publicly and preserves coordi
   fs.mkdirSync(path.join(root, 'node_modules'), { recursive: true });
   fs.symlinkSync(candidate, path.join(root, 'node_modules/js-superagent'));
   const original = {};
-  for (const [key, value] of Object.entries({ JS_SUPERAGENT_HOME: path.join(base, 'state'), JS_SUPERAGENT_MACHINE_DIRECTORY: path.join(base, 'machine') })) {
+  for (const [key, value] of Object.entries({ JS_SUPERAGENT_HOME: path.join(base, 'state'), JS_SUPERAGENT_MACHINE_DIRECTORY: path.join(base, 'machine'), JS_SUPERAGENT_SKILL_HOME: path.join(base, 'bindings'), JS_SUPERAGENT_COMPONENT_SOURCE: 'local' })) {
     original[key] = process.env[key]; process.env[key] = value;
   }
   t.after(() => { for (const [key, value] of Object.entries(original)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } fs.rmSync(base, { recursive: true, force: true }); });
@@ -46,6 +46,9 @@ test('candidate package configures material grants publicly and preserves coordi
     const directory = path.join(sdk.projectStateDirectory(root), 'knowledge'); fs.mkdirSync(directory);
     fs.writeFileSync(path.join(directory, 'project.md'), '# Synthetic project\nCoordinator navigation only.');
     await app.stop(); app.close(); app = null;
+    const resolved = await resolveRuntime(root);
+    assert.equal(resolved.packageRoot, candidate);
+    assert.equal(resolved.version, manifest.version);
     const preview = await syncKnowledge(root); assert.equal(preview.changed, true);
     await syncKnowledge(root, { apply: true });
     app = sdk.createProjectAgent({ projectRoot: root }).init();
