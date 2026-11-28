@@ -21,6 +21,7 @@ const layouts = Object.freeze({
   '0.15.0-alpha.16': [14, 15],
   '0.15.0-alpha.17': [14, 15],
   '0.15.0-alpha.18': [14, 15],
+  '0.15.0-alpha.19': [14, 15],
 });
 export const supportedRuntimeVersions = Object.freeze(Object.keys(layouts));
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.2 — 2026-11-28
+
+- Require an independent Lark/Feishu App per project; global component reuse does not share channel identity or event delivery.
+- Document read-only App ownership inspection, persistent ownership after service shutdown, and safe transfer without resetting tasks, approvals or history.
+- Add a synthetic same-App conflict rehearsal covering stopped projects, separate chats, retained paused reviews and the absence of protection in older runtimes.
+- Add exact js-superagent 0.15.0-alpha.19 knowledge/schema and material-layout compatibility, with published-candidate CI coverage and continued rejection of unknown versions.
+
 ## 0.8.1 — 2026-11-28
 
 - Use an OS-backed component binding lock so crashed or rebooted writers cannot leave a new binding operation permanently blocked; retain a persistent protocol marker to exclude incompatible legacy writers.

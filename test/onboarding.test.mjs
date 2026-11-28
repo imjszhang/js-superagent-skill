@@ -90,3 +90,23 @@ test('runtime upgrade rehearsal retains a real frozen run and paused task while 
   await assert.rejects(offlineCli(root,['service','start']));
   assert.deepEqual(snapshot(root),before);
 });
+test('same-App rehearsal preserves the paused review and exposes distinct stopped projects without enabling a listener',async t=>{
+  const root=await fixture(t,'feishu-app-conflict'), before=snapshot(root);
+  const observations=JSON.parse(fs.readFileSync(path.join(root,'fixture.json')));
+  const [current,other]=observations.feishuDeployments;
+  assert.notEqual(current.project,other.project);
+  assert.equal(current.appId,other.appId);
+  assert.notDeepEqual(current.chatIds,other.chatIds);
+  assert.equal(current.operatorOpenId,other.operatorOpenId);
+  assert.ok([current,other].every(project=>project.serviceState==='stopped'));
+  assert.equal(observations.runtimeObservation.crossProjectAppGuard,false);
+  assert.equal(observations.runtimeObservation.simulated,true);
+  const review=(await offlineCli(root,['status','garden-candidate-review'])).state;
+  assert.equal(review.control,'paused');
+  assert.equal(review.running.ticketId,'synthetic-garden-review-ticket');
+  assert.ok(Object.keys(before.entries).some(file=>file.endsWith('/runs/R0001/draft.json')));
+  for(const {id} of await offlineCli(root,['list']))await offlineCli(root,['status',id]);
+  for(const args of [['service','start'],['service','stop'],['resume','garden-candidate-review'],['tick','--all']])await assert.rejects(offlineCli(root,args));
+  assert.deepEqual(snapshot(root),before);
+  assert.equal(snapshot(root).serviceHomePresent,false);
+});

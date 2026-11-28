@@ -56,5 +56,39 @@
       "account": "not needed for local inspection",
       "taskInventory": "unknown; inspect the project registry to establish what can be read"
     }
+  },
+  "feishu-app-conflict": {
+    "request": "这个项目要接入飞书审核。我发现另一个花园归档项目也用了这只机器人，不过群不同，而且另一个项目目前停着。先只读检查这种配置是否合适，说明怎么处理；保留本项目暂停的审核、原工单与冻结输入，不改配置、不创建应用、不启停服务。",
+    "observations": {
+      "installation": "offline CLI supplied by the evaluation harness; actual project runtime dependencies absent",
+      "backend": "SIMULATED stopped; no real service exists",
+      "account": "SIMULATED app configurations only; no real account probe performed",
+      "feishuDeployments": [
+        {
+          "project": "garden-review",
+          "appId": "cli_synthetic_garden_app",
+          "chatIds": [
+            "oc_synthetic_review"
+          ],
+          "operatorOpenId": "ou_synthetic_operator",
+          "serviceState": "stopped"
+        },
+        {
+          "project": "garden-archive",
+          "appId": "cli_synthetic_garden_app",
+          "chatIds": [
+            "oc_synthetic_archive"
+          ],
+          "operatorOpenId": "ou_synthetic_operator",
+          "serviceState": "stopped"
+        }
+      ],
+      "runtimeObservation": {
+        "version": "0.15.0-alpha.18",
+        "crossProjectAppGuard": false,
+        "simulated": true
+      },
+      "history": "A paused review has an in-flight synthetic ticket and frozen draft created through the public longrun API. A report task remains draft."
+    }
   }
 }
