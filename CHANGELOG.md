@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.3 — 2026-11-28
+
+- Document js-longrun 0.2.0-alpha.4 minute intervals with a five-minute minimum and exclusive hour/minute fields.
+- Add five-minute fixed-interval and half-hour after-settlement examples, preserving existing hour definitions and frozen schedules.
+- Explain service check frequency, component capability validation and independent weekly run quotas when deploying minute-based tasks.
+
 ## 0.8.2 — 2026-11-28
 
 - Require an independent Lark/Feishu App per project; global component reuse does not share channel identity or event delivery.
