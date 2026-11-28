@@ -8,6 +8,7 @@ import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {supportedRuntimeVersions} from './compatibility.mjs';
+import {withBindingLock} from './binding-lock.mjs';
 export const componentNames = ['js-superagent','js-longrun','js-agent-runtime','@larksuiteoapi/node-sdk'];
 const sha = data => createHash('sha256').update(data).digest('hex');
 const read = file => JSON.parse(fs.readFileSync(file,'utf8'));
@@ -61,6 +62,10 @@ function globalDirectories(options) {
   // A PATH executable may belong to another Node prefix. Inspect its real package;
   // do not trust the executable name or run package code to identify it.
   for(const directory of (process.env.PATH??'').split(path.delimiter).filter(path.isAbsolute)) {
+    // npm run injects project-local bins into PATH; they are not another global
+    // prefix and must not override the selected project's own local fallback.
+    let actualDirectory;try {actualDirectory=fs.realpathSync(directory);}catch {continue;}
+    if([path.resolve(directory),actualDirectory].some(p=>path.basename(p)==='.bin'&&path.basename(path.dirname(p))==='node_modules'))continue;
     for(const name of ['js-superagent','js-longrun']) {
       const bin=path.join(directory,name); if(!fs.existsSync(bin))continue;
       let at=path.dirname(fs.realpathSync(bin));
@@ -196,9 +201,7 @@ export function assertManagedBindingHome() {
 export function bindComponents(projectRoot,options={}) {
   const root=project(projectRoot), file=componentBindingPath(root,options);
   fs.mkdirSync(path.dirname(file),{recursive:true,mode:0o700});
-  const lock=file+'.lock';
-  try {fs.mkdirSync(lock,{mode:0o700});}catch(error){if(error.code==='EEXIST')throw Error('Another component binding operation is in progress; inspect it before retrying');throw error;}
-  try {
+  return withBindingLock(file, () => {
   const existing=loadBinding(root,options);
   if(installedServices(root).length)throw Error('Stop and uninstall existing service registrations before binding; keep their options and project state');
   if(existing&&!options.replace)throw Error('Components already bound; use --replace only after stopping dependent work');
@@ -215,7 +218,7 @@ export function bindComponents(projectRoot,options={}) {
   const temporary=file+'.'+randomUUID()+'.tmp';
   fs.writeFileSync(temporary,JSON.stringify(value,null,2)+'\n',{mode:0o600,flag:'wx'});fs.renameSync(temporary,file);
   return value;
-  } finally {fs.rmdirSync(lock);}
+  });
 }
 export async function main(argv=process.argv.slice(2)) {
   if(argv.length===1&&argv[0]==='--help'){console.log('components.mjs --project /absolute/project inspect\ncomponents.mjs --project /absolute/project bind --source global|local [--replace]\ncomponents.mjs --project /absolute/project exec js-superagent|js-longrun [native arguments]\nInspection is read-only. Binding writes only machine state. Existing services must be stopped and uninstalled before rebinding. exec supplies --project and uses the selected Node.');return;}

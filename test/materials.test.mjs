@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { syncKnowledge } from '../skills/js-superagent-skill/scripts/knowledge.mjs';
+import { syncKnowledge, resolveRuntime } from '../skills/js-superagent-skill/scripts/knowledge.mjs';
 
 const example = JSON.parse(fs.readFileSync(new URL('../skills/js-superagent-skill/assets/project-materials.example.json', import.meta.url), 'utf8'));
 test('material deployment sample starts with one local read-only source and no preparation or apply grant', () => {
@@ -21,13 +21,13 @@ test('material deployment sample starts with one local read-only source and no p
 test('candidate package configures material grants publicly and preserves coordinator-only knowledge at schema 15', { skip: !process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE }, async t => {
   const candidate = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE);
   const manifest = JSON.parse(fs.readFileSync(path.join(candidate, 'package.json'), 'utf8'));
-  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16', '0.15.0-alpha.17'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
+  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16', '0.15.0-alpha.17', '0.15.0-alpha.18'].includes(manifest.version), 'Candidate matrix must exercise an exact supported material package layout');
   const sdk = await import(pathToFileURL(path.resolve(candidate, manifest.exports['.'].import)).href);
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'skill-materials-'))), root = path.join(base, 'project');
   fs.mkdirSync(path.join(root, 'node_modules'), { recursive: true });
   fs.symlinkSync(candidate, path.join(root, 'node_modules/js-superagent'));
   const original = {};
-  for (const [key, value] of Object.entries({ JS_SUPERAGENT_HOME: path.join(base, 'state'), JS_SUPERAGENT_MACHINE_DIRECTORY: path.join(base, 'machine') })) {
+  for (const [key, value] of Object.entries({ JS_SUPERAGENT_HOME: path.join(base, 'state'), JS_SUPERAGENT_MACHINE_DIRECTORY: path.join(base, 'machine'), JS_SUPERAGENT_SKILL_HOME: path.join(base, 'bindings'), JS_SUPERAGENT_COMPONENT_SOURCE: 'local' })) {
     original[key] = process.env[key]; process.env[key] = value;
   }
   t.after(() => { for (const [key, value] of Object.entries(original)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } fs.rmSync(base, { recursive: true, force: true }); });
@@ -46,6 +46,9 @@ test('candidate package configures material grants publicly and preserves coordi
     const directory = path.join(sdk.projectStateDirectory(root), 'knowledge'); fs.mkdirSync(directory);
     fs.writeFileSync(path.join(directory, 'project.md'), '# Synthetic project\nCoordinator navigation only.');
     await app.stop(); app.close(); app = null;
+    const resolved = await resolveRuntime(root);
+    assert.equal(resolved.packageRoot, candidate);
+    assert.equal(resolved.version, manifest.version);
     const preview = await syncKnowledge(root); assert.equal(preview.changed, true);
     await syncKnowledge(root, { apply: true });
     app = sdk.createProjectAgent({ projectRoot: root }).init();
@@ -59,7 +62,7 @@ test('candidate package configures material grants publicly and preserves coordi
 test('installed material contract rejects selected grants in supported enforcement builds and preserves unselected ordinary tasks', { skip: !process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE }, async t => {
   const candidate = fs.realpathSync(process.env.JS_SUPERAGENT_CANDIDATE_PACKAGE);
   const manifest = JSON.parse(fs.readFileSync(path.join(candidate, 'package.json'), 'utf8'));
-  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16', '0.15.0-alpha.17'].includes(manifest.version));
+  assert.ok(['0.15.0-alpha.0', '0.15.0-alpha.1', '0.15.0-alpha.2', '0.15.0-alpha.3', '0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16', '0.15.0-alpha.17', '0.15.0-alpha.18'].includes(manifest.version));
   const sdk = await import(pathToFileURL(path.resolve(candidate, manifest.exports['.'].import)).href);
   const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'skill-material-denial-'))), root = path.join(base, 'project');
   fs.mkdirSync(root);
@@ -78,7 +81,7 @@ test('installed material contract rejects selected grants in supported enforceme
       const before = app.list().length;
       assert.throws(() => app.submit({ text: 'inspect selected source', materials: settings.defaults }), { code });
       assert.equal(app.list().length, before, 'An explicit denied grant creates no ticket');
-      if (['0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16', '0.15.0-alpha.17'].includes(manifest.version)) {
+      if (['0.15.0-alpha.4', '0.15.0-alpha.5', '0.15.0-alpha.6', '0.15.0-alpha.7', '0.15.0-alpha.10', '0.15.0-alpha.11', '0.15.0-alpha.12', '0.15.0-alpha.13', '0.15.0-alpha.14', '0.15.0-alpha.15', '0.15.0-alpha.16', '0.15.0-alpha.17', '0.15.0-alpha.18'].includes(manifest.version)) {
         assert.throws(() => app.submit({ text: 'inspect default source' }), { code });
         assert.equal(app.list().length, before, 'A denied default creates no replacement ordinary ticket');
       } else {
